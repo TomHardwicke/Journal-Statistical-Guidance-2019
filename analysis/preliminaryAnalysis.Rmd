@@ -1,0 +1,31 @@
+---
+title: "An assessment of statistical guidance for authors at influential academic journals across scientific disciplines: Preliminary analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, message = F, warning = T)
+```
+
+```{r load_packages}
+library(knitr) # for literate programming
+library(papaja) # for article template
+library(tidyverse) # for data munging
+library(tidylog) # inline analysis feedback
+library(here) # for finding files
+```
+
+```{r perform_preprocessing}
+# loads raw data, performs preprocessing, saves preprocessed files
+source(here('analysis','preprocessing.R'))
+```
+
+```{r load_processed_data}
+# loads the processed data files output by the preprocessing performed above
+load(here('data','processed','d_coding.R'))
+```
+
+```{r load_functions}
+# load custom functions
+source(here('analysis','functions.R'))
+```
