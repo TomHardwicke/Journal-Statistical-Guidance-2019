@@ -11,7 +11,7 @@ write_csv(d_coding,here("data","primary","data_coding.csv")) # save file to prim
 
 d_journals <- read_csv(here("data","raw","data_journals.csv")) # load raw data
 # no changes necessary
-write_csv(d_coding,here("data","primary","data_journals.csv")) # save file to primary data folder
+write_csv(d_journals,here("data","primary","data_journals.csv")) # save file to primary data folder
 
 
 
