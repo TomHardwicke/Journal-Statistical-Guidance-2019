@@ -69,7 +69,7 @@ d_coding <-
   assert(in_set("DS/TH", "MM/TH", "MSH/TH", "TB/TH"), coder) %>% 
   
   # Check that there is one row per journal
-  # verify(nrow(.) == nrow(d_journals)) %>% 
+  verify(nrow(.) == nrow(d_journals)) %>%
   
   # Check that journals are unique
   assert(is_uniq, journal) %>% 
@@ -94,15 +94,6 @@ d_coding <-
     has_internal_guidance = 
       if_else(str_detect(has_internal_guidance, "Yes"), "Yes", has_internal_guidance),
     .after = has_internal_guidance
-  ) %>% 
-    
-  # Manual entry errors in "Lancet Respiratory Medicine"
-  # For now, correct here but asking Tom to check in manual entry
-  mutate(
-    subgroup = if_else(journal == "Lancet Respiratory Medicine", has_subgroup, subgroup),
-    has_subgroup = if_else(journal == "Lancet Respiratory Medicine", "YES", has_subgroup),
-    prespecify = if_else(journal == "Lancet Respiratory Medicine", has_prespecify, prespecify),
-    has_prespecify = if_else(journal == "Lancet Respiratory Medicine", "YES", has_prespecify)
   ) %>% 
   
   # Check that all booleans "Yes"/"No"/NA and convert to TRUE/FALSE/NA
@@ -136,8 +127,7 @@ for (var_bool in vars_bool) {
 }
 
 # Text should NOT be provided if boolean FALSE
-# TODO: Manual data entry error for external_guidelines; asked Tom; currently skipping this check, so change once resolved
-for (var_bool in vars_bool[2:length(vars_bool)]) {
+for (var_bool in vars_bool) {
   
   var_text <- str_remove(var_bool, "has_")
   
@@ -146,15 +136,12 @@ for (var_bool in vars_bool[2:length(vars_bool)]) {
   )
 }
 
-# d_coding <-
-#   d_coding %>%
-# 
-#   # Check that all journals with internal guidance have TRUE/FALSE (not NA) for booleans
-#   # TODO: fix 2 manual entry errors in BRITISH JOURNAL OF PHARMACOLOGY; asked Tom; for now commented out
-#   # filter(journal != "BRITISH JOURNAL OF PHARMACOLOGY")
-#   pointblank::col_vals_not_null(
-#     d_coding, vars(!!!vars_bool), ~. %>% filter(has_internal_guidance)
-#   )
+# Check that all journals with internal guidance have TRUE/FALSE (not NA) for booleans
+d_coding <-
+  d_coding %>%
+  pointblank::col_vals_not_null(
+    vars(!!!vars_bool), ~. %>% filter(has_internal_guidance)
+  )
 
 readr::write_csv(d_coding, file =  here::here("data", "processed", "d_coding.csv"))
 save(d_coding, file =  here::here("data", "processed", "d_coding.rds"))
