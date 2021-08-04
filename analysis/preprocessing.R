@@ -4,10 +4,17 @@
 # save processed data (in csv format and R format)
 library(tidyverse)
 library(assertr)
-
+library(janitor)
 # Load data
 d_coding <- read_csv(here::here("data", "primary", "data_coding.csv"))
 d_journals <- read_csv(here::here("data", "primary", "data_journals.csv"))
+
+d_journals <-
+  d_journals %>% 
+  
+  # Rename variables
+  janitor::clean_names() %>% 
+  rename(journal = "full_journal_title")
 
 d_coding <-
   d_coding %>% 
@@ -253,7 +260,6 @@ d_coding <-
   
   # Manually tidy guidance
   mutate(external_guidance = case_when(
-    # str_detect(external_guidance, "some papers related to statistics are mentioned") ~ NA_character_, 
     
     # Guidelines
     str_detect(external_guidance, "star methods") ~ "cell star methods",
@@ -271,25 +277,47 @@ d_coding <-
     str_detect(external_guidance, "p?risma(?!-p)") ~ "prisma",
     str_detect(external_guidance, "st?rega") ~ "strega",
     str_detect(external_guidance, "strobe(?!-me)") ~ "strobe",
+    str_detect(external_guidance, "nature life sciences") ~ "nature life sciences reporting",
     str_detect(external_guidance, "https://www.nlm.nih.gov/services/research_report_guide.html") ~ "nlm research reporting guidelines and initiatives (https://www.nlm.nih.gov/services/research_report_guide.html)",
     str_detect(external_guidance, "nih preclinical|^nih$") ~ "nih principles and guidelines for reporting preclinical research",
     str_detect(external_guidance, "https://www.amstat.org/asa/your-career/ethical-guidelines-for-statistical-practice.aspx") ~ "asa (https://www.amstat.org/asa/your-career/ethical-guidelines-for-statistical-practice.aspx)",
     
     # Publications
+    str_detect(external_guidance, "altman") ~ "altman et al. 1983 (10.1136/bmj.286.6376.1489)",
+    str_detect(external_guidance, "boushey harris bruemmer and archer 2008") ~ "boushey et al. 2008 (10.1016/j.jada.2008.01.002)",
+    str_detect(external_guidance, "boushey harris bruemmer archer and van horn 2006") ~ "boushey et al. 2006 (10.1016/j.jada.2005.11.007)",
+    str_detect(external_guidance, "bruemmer harris gleason et al 2009") ~ "bruemmer et al. 2009 (10.1016/j.jada.2009.07.011)",
+    str_detect(external_guidance, "cummings & rivara 2003|https://jamanetwork.com/journals/jamapediatrics/fullarticle/481292") ~ "cummings & rivara 2003 (10.1001/archpedi.157.4.321)",
+    str_detect(external_guidance, "error") ~ "cumming et al. 2007 (10.1083/jcb.200611141)",
+    str_detect(external_guidance, "gleason harris sheean boushey and bruemmer 2010") ~ "gleason et al. 2010 (10.1016/j.jada.2009.11.022)",
+    str_detect(external_guidance, "gleason boushey and zoellner 2015") ~ "gleason et al. 2015 (10.1016/j.jand.2015.03.011)",
+    str_detect(external_guidance, "harris and raynor 2017") ~ "harris & raynor 2017 (10.1016/j.jand.2017.03.017)",
+    str_detect(external_guidance, "harris boushey bruemmer archer 2008") ~ "harris et al. 2008 (10.1016/j.jada.2008.06.426)",
+    str_detect(external_guidance, "harris gleason sheean boushey beto bruemmer 2009") ~ "harris et al. 2009 (10.1016/j.jada.2008.10.018)",
+    str_detect(external_guidance, "harris sheean gleason bruemmer and boushey 2012") ~ "harris et al. 2012 (10.1016/j.jada.2011.09.037)",
+    str_detect(external_guidance, "hewitt 2012") ~ "hewitt 2012 (10.1007/s10519-011-9504-z)",
+    str_detect(external_guidance, "hollingshead 2008") ~ "hollingshead 2008 (10.1093/jnci/djn351)",
+    str_detect(external_guidance, "kempen 2011") ~ "kempen 2011 (10.1016/j.ajo.2010.08.047)",
+    str_detect(external_guidance, "http://jpet.aspetjournals.org/content/351/1/200") ~ "motulsky 2014 (10.1124/jpet.114.219170)",
     str_detect(external_guidance, "olsen 2003") ~ "olsen 2003 (10.1128/iai.71.12.6689-6692.2003)",
     str_detect(external_guidance, "olsen 2014") ~ "olsen 2014 (10.1128/iai.00811-13)",
-    str_detect(external_guidance, "kempen 2011") ~ "kempen 2011 (10.1016/j.ajo.2010.08.047)",
-    str_detect(external_guidance, "cummings & rivara 2003|https://jamanetwork.com/journals/jamapediatrics/fullarticle/481292") ~ "cummings & rivara 2003 (10.1001/archpedi.157.4.321)",
-    str_detect(external_guidance, "richardson (and|&) overbaugh 2005") ~ "richardson & overbaugh 2005 (10.1128/jvi.79.2.669-676.2005)",
-    str_detect(external_guidance, "hollingshead 2008") ~ "hollingshead 2008 (10.1093/jnci/djn351)",
-    str_detect(external_guidance, "tumor") ~ "simon et al. 2009 (10.1093/jnci/djp335)",
-    str_detect(external_guidance, "hewitt 2012") ~ "hewitt 2012 (10.1007/s10519-011-9504-z)",
-    str_detect(external_guidance, "error") ~ "cumming et al. 2007 (10.1083/jcb.200611141)",
     str_detect(external_guidance, "fmri") ~ "poldrack et al. 2008 (10.1016/j.neuroimage.2007.11.048)",
-    # str_detect(external_guidance, "robust") ~ "(10.1038/ncb0609-667a)",
-    str_detect(external_guidance, "http://jpet.aspetjournals.org/content/351/1/200") ~ "motulsky 2014 (10.1124/jpet.114.219170)",
+    str_detect(external_guidance, "richardson (and|&) overbaugh 2005") ~ "richardson & overbaugh 2005 (10.1128/jvi.79.2.669-676.2005)",
+    str_detect(external_guidance, "sheean bruemmer gleason harris boushey van horn 2011") ~ "sheean 2011 (10.1016/j.jada.2010.10.010)",
+    str_detect(external_guidance, "tumor") ~ "simon et al. 2009 (10.1093/jnci/djp335)",
     str_detect(external_guidance, "https://www.ahajournals.org/doi/10.1161/jaha.116.004142") ~ "sullivan et al. 2016 (10.1161/jaha.116.004142)",
-    str_detect(external_guidance, "altman") ~ "altman et al. 1983 (10.1136/bmj.286.6376.1489)",
+    str_detect(external_guidance, "zoellner van horn gleason boushey 2015") ~ "zoellner et al. 2015 (10.1016/j.jand.2015.03.010)",
+    str_detect(external_guidance, "zoellner and harris 2017") ~ "zoellner & harris 2017 (10.1016/j.jand.2017.01.018)",
+    
+
+    str_detect(external_guidance, "ten simple rules for reproducible computational research") ~ "sandve et al. 2013 (10.1371/journal.pcbi.1003285)",
+    str_detect(external_guidance, "use of anova versus t-test") ~ "brady et al. 2015 (10.1105/tpc.15.00238)",
+    str_detect(external_guidance, "know when your numbers are significant") ~ "vaux 2012 (10.1038/492180a)",
+    str_detect(external_guidance, "dupuy & simon 2007") ~ "table 3 in dupuy & simon 2007 (10.1093/jnci/djk018)",
+    str_detect(external_guidance, "how robust are your data") ~ "how robust are your data 2009 (10.1038/ncb0609-667a)",
+    
+    
+    
     TRUE ~ external_guidance
   )) %>% 
   
@@ -312,15 +340,36 @@ lookup_external_guidance <-
   d_coding %>% 
   select(external_guidance = external_guidance_list) %>%
   filter(!is.na(external_guidance)) %>%
-  distinct() %>%
   separate_rows(external_guidance, sep = ",") %>% 
   mutate(external_guidance = str_trim(external_guidance)) %>% 
   count(external_guidance, name = "n_journals") %>% 
-  arrange(desc(n_journals), external_guidance)
+  arrange(desc(n_journals), external_guidance) %>% 
 
+  # Add type of guidance
+  mutate(guidance_type = case_when(
+    
+    # Papers have doi (mostly)
+    str_detect(external_guidance, "10\\.\\d{4,9}/[-.;()/:\\w\\d]+$") ~ "paper",
+    str_detect(external_guidance, "statistics for biologists|ncbi.nlm.nih.gov/books/nbk153593|biostathandbook|biology_statistics_made_simple_using_excel") ~ "paper", #unsure
+    
+    # Reporting guidelines are mostly a single word, possibly with a dash
+    str_detect(external_guidance, "^[\\w-]+$") ~ "reporting guideline",
+    str_detect(external_guidance, "consort|apa jars") ~ "reporting guideline",
+    str_detect(external_guidance, "^nih|^nlm|^fda") ~ "reporting guideline",
+    str_detect(external_guidance, "biosharing|hugenet") ~ "reporting guideline", #unsure
+    
+    str_detect(external_guidance, "^nature") ~ "publisher",
+    str_detect(external_guidance, "apa|asa|cell star|frontiersin") ~ "publisher",
+    TRUE ~ NA_character_
+  ))
+
+# by field
 
 readr::write_csv(d_coding, file =  here::here("data", "processed", "d_coding.csv"))
 save(d_coding, file =  here::here("data", "processed", "d_coding.rds"))
+
+readr::write_csv(d_journals, file =  here::here("data", "processed", "d_journals.csv"))
+save(d_journals, file =  here::here("data", "processed", "d_journals.rds"))
 
 readr::write_csv(lookup_external_guidance, file =  here::here("data", "processed", "lookup_external_guidance.csv"))
 save(lookup_external_guidance, file =  here::here("data", "processed", "lookup_external_guidance.rds"))
