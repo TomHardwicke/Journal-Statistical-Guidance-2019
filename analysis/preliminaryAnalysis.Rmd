@@ -1,6 +1,8 @@
 ---
 title: "An assessment of statistical guidance for authors at influential academic journals across scientific disciplines: Preliminary analysis"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -13,6 +15,7 @@ library(papaja) # for article template
 library(tidyverse) # for data munging
 library(tidylog) # inline analysis feedback
 library(here) # for finding files
+library(gtsummary) # for summary tables
 ```
 
 ```{r perform_preprocessing}
@@ -22,10 +25,84 @@ source(here('analysis','preprocessing.R'))
 
 ```{r load_processed_data}
 # loads the processed data files output by the preprocessing performed above
-load(here('data','processed','d_coding.R'))
+load(here('data','processed','d_coding.rds'))
+load(here('data','processed','lookup_external_guidance.rds'))
 ```
 
 ```{r load_functions}
 # load custom functions
 source(here('analysis','functions.R'))
+```
+Look at counts and proportions mentioning each topic. Use all journals (regardless of whether internal guidance is available) for denominator.
+```{r tbl_counts_props}
+d_coding %>% 
+  
+  # Recode NAs to FALSE for internal guidance elements
+  mutate(across(starts_with("has_") & (!contains("guidance")), ~replace_na(., FALSE) )) %>% 
+  
+  select(starts_with("has_")) %>% 
+  gtsummary::tbl_summary() %>%
+  add_n() %>% 
+  modify_footnote(everything() ~ NA)
+```
+
+Try a mosaic plot for internal guidance...nope!
+```{r plot_internal_guidance_mosaic}
+my_palette <- c("lightcoral", "lightgrey", "lightblue")
+
+d_internal_guidance <-
+  d_coding %>% 
+  select(journal, starts_with("has_") & (!contains("guidance"))) %>% 
+  pivot_longer(
+    -journal,
+    names_to = "topic",
+    values_to = "outcome",
+    values_drop_na = FALSE
+  ) %>% 
+  mutate(outcome = case_when(
+    outcome ~ "Mentioned",
+    !outcome ~ "Not mentioned",
+    TRUE ~ "Not applicable (No internal guidance)"
+  ))
+
+# plt <- 
+  d_internal_guidance %>%
+  ggplot(aes(x = topic, y = factor(journal))) +
+  geom_tile(aes(fill = outcome), colour = 'black', size = .25) +
+  scale_fill_manual(
+    values = my_palette,
+    # labels = c('Not mentioned', 'Unclear', 'Mentioned')
+  ) +
+  scale_x_discrete(position = 'top') +
+  papaja::theme_apa() +
+  xlab("Topics mentioned") +
+  theme(plot.margin = margin(0, 50, 0, 0),
+        axis.ticks = element_blank(),
+        axis.title.y =element_blank(),
+        panel.grid.major=element_line(colour=NA), 
+        panel.grid.minor=element_line(colour=NA),
+        legend.position = 'bottom',
+        axis.text.x  = element_text(angle = 45, hjust = 0),
+        strip.background = element_rect(
+          color="black", fill="white", size=0, linetype="solid"
+        ),
+        strip.text.y = element_text(
+          size = 8, color = "black", face = 'bold'
+        ))
+
+# ggsave('internal-guidance.png', width = 11, height = 10)
+```
+
+Try bar chart
+```{r plot_internal_guidance_bar}
+d_internal_guidance %>% 
+  ggplot(aes(y = topic, fill = outcome)) +
+  geom_bar() +
+  scale_fill_manual(values = my_palette)
+```
+
+Look at external guidance
+```{r tbl_external_guidance}
+lookup_external_guidance %>% 
+  knitr::kable()
 ```
