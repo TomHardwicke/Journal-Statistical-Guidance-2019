@@ -363,8 +363,6 @@ lookup_external_guidance <-
     TRUE ~ NA_character_
   ))
 
-# by field
-
 readr::write_csv(d_coding, file =  here::here("data", "processed", "d_coding.csv"))
 save(d_coding, file =  here::here("data", "processed", "d_coding.rds"))
 
