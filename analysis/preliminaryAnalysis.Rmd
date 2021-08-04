@@ -26,6 +26,7 @@ source(here('analysis','preprocessing.R'))
 ```{r load_processed_data}
 # loads the processed data files output by the preprocessing performed above
 load(here('data','processed','d_coding.rds'))
+load(here('data','processed','d_journals.rds'))
 load(here('data','processed','lookup_external_guidance.rds'))
 ```
 
@@ -33,18 +34,34 @@ load(here('data','processed','lookup_external_guidance.rds'))
 # load custom functions
 source(here('analysis','functions.R'))
 ```
-Look at counts and proportions mentioning each topic. Use all journals (regardless of whether internal guidance is available) for denominator.
-```{r tbl_counts_props}
-d_coding %>% 
-  
-  # Recode NAs to FALSE for internal guidance elements
-  mutate(across(starts_with("has_") & (!contains("guidance")), ~replace_na(., FALSE) )) %>% 
-  
-  select(starts_with("has_")) %>% 
-  gtsummary::tbl_summary() %>%
-  add_n() %>% 
-  modify_footnote(everything() ~ NA)
+
+```{r set_style_defaults}
+theme_gtsummary_compact()
 ```
+Look at counts and proportions mentioning each topic. Use all journals for denominator. Overall and by field.
+``````{r tbl_counts_props}
+d_journals %>% 
+  select(journal, esi_field) %>% 
+  left_join(d_coding, ., by = "journal") %>% 
+  
+  # Recode NAs to FALSE
+  mutate(across(
+    everything()
+    # starts_with("has_") & (!contains("guidance")) # for internal guidance elements
+    , ~replace_na(., FALSE) )) %>% 
+  
+  select(esi_field, starts_with("has_")) %>% 
+  gtsummary::tbl_summary(
+    by = esi_field,
+      # statistic = list(everything() ~ "{p}% ({n} / {N})")
+  ) %>%
+  add_overall %>% 
+  modify_footnote(everything() ~ NA) %>% 
+  modify_caption("**Number and proportion of journals overall and by field providing internal statistical guidance by topic.** Denominator for all proportions is the number of journals in the field, regardless of whether the journal has internal guidance.")
+```
+Some initial observations
+- Math and computer science are indeed at 0% across the board.
+- Clinical medicine has 100% guidance. Also high in related field: biology & biochemistry, immunology, molecular bio & genetics. Also psych and neuro fields.
 
 Try a mosaic plot for internal guidance...nope!
 ```{r plot_internal_guidance_mosaic}
@@ -105,4 +122,11 @@ Look at external guidance
 ```{r tbl_external_guidance}
 lookup_external_guidance %>% 
   knitr::kable()
+```
+
+External guidance types
+```{r tbl_external_guidance_types}
+lookup_external_guidance %>% 
+  count(guidance_type) %>% 
+  kable()
 ```
