@@ -1,5 +1,8 @@
 # convert raw data to primary data
 
+###!!! NB - the data file created by the code below in the primary folder results in a parsing warning that we've been unable to resolve. 
+# The problem is fixed by opening the csv file in the primary folder in Excel and saving it. Hopefully we can find a programmatic solution, but currently this manual step needs to be performed whenever the raw data are converted to primary.
+
 library(tidyverse)
 library(here)
 
