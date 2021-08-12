@@ -5,6 +5,7 @@
 library(tidyverse)
 library(assertr)
 library(janitor)
+
 # Load data
 d_coding <- read_csv(here::here("data", "primary", "data_coding.csv"))
 d_journals <- read_csv(here::here("data", "primary", "data_journals.csv"))
@@ -277,7 +278,7 @@ d_coding <-
     str_detect(external_guidance, "p?risma(?!-p)") ~ "prisma",
     str_detect(external_guidance, "st?rega") ~ "strega",
     str_detect(external_guidance, "strobe(?!-me)") ~ "strobe",
-    str_detect(external_guidance, "nature life sciences") ~ "nature life sciences reporting",
+    #str_detect(external_guidance, "nature life sciences") ~ "nature life sciences reporting",
     str_detect(external_guidance, "https://www.nlm.nih.gov/services/research_report_guide.html") ~ "nlm research reporting guidelines and initiatives (https://www.nlm.nih.gov/services/research_report_guide.html)",
     str_detect(external_guidance, "nih preclinical|^nih$") ~ "nih principles and guidelines for reporting preclinical research",
     str_detect(external_guidance, "https://www.amstat.org/asa/your-career/ethical-guidelines-for-statistical-practice.aspx") ~ "asa (https://www.amstat.org/asa/your-career/ethical-guidelines-for-statistical-practice.aspx)",
@@ -362,6 +363,17 @@ lookup_external_guidance <-
     str_detect(external_guidance, "apa|asa|cell star|frontiersin") ~ "publisher",
     TRUE ~ NA_character_
   ))
+
+# Tom addition: identify journals that inherit publisher guidance and insert that publisher guidance into the journal row
+# NB - there is one exception - the journal Scientific Data inherits the publisher guidance, but also has its own journal specific guidance, so we need to handle this one separately
+natureJournals <- d_coding %>%
+  filter(str_detect(external_guidance_list, "nature"))
+
+cellJournals <- d_coding %>%
+  filter(str_detect(external_guidance_list, "cell"))
+
+frontiersJournals <- d_coding %>%
+  filter(str_detect(external_guidance_list, "frontiers"))
 
 readr::write_csv(d_coding, file =  here::here("data", "processed", "d_coding.csv"))
 save(d_coding, file =  here::here("data", "processed", "d_coding.rds"))
