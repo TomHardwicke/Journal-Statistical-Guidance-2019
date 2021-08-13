@@ -154,7 +154,7 @@ d_coding <-
 # remove shared guidance from d_coding and retain in separate dataframe
 d_coding_shared <- d_coding %>% 
   filter(str_detect(journal, "SHARED")) %>%
-  filter(journal %in% c("SHARED: Nature consolidated", "SHARED: Frontiers", "SHARED: STAR Methods")) # retain only the shared guidance we need (i.e., drop individual Nature guidelines which are covered by Nature consolidated)
+  filter(journal %in% c("SHARED: Nature consolidated", "SHARED: Frontiers", "SHARED: STAR Methods", "SHARED: Scientific Data Consolidated")) # retain only the shared guidance we need (i.e., drop individual Nature guidelines which are covered by Nature consolidated)
 
 d_coding <- d_coding %>% 
   filter(!str_detect(journal, "SHARED"))
@@ -203,7 +203,10 @@ frontiers_df2 <- d_coding_shared %>% filter(journal == "SHARED: Frontiers") %>%
 
 frontiers_shared <- bind_cols(frontiers_df1, frontiers_df2)
 
-allPublishers_shared <- bind_rows(nature_shared, cell_shared, frontiers_shared)
+scientific_data_consolidated <- d_coding_shared %>% filter(journal == "SHARED: Scientific Data Consolidated") %>% # extract the special row for Scientific Data Consolidated
+  mutate(journal = "Scientific Data")
+
+allPublishers_shared <- bind_rows(nature_shared, cell_shared, frontiers_shared, scientific_data_consolidated)
 
 # remove journals from d_coding and replace with the dataframes where they are attached to publisher guidance
 d_coding <- d_coding %>% filter(journal %notin% allPublishers_shared$journal)
@@ -418,8 +421,6 @@ lookup_external_guidance <-
     str_detect(external_guidance, "consort|apa jars") ~ "reporting guideline",
     str_detect(external_guidance, "^nih|^nlm|^fda") ~ "reporting guideline",
     str_detect(external_guidance, "biosharing|hugenet") ~ "reporting guideline", #unsure
-    
-    str_detect(external_guidance, "^nature") ~ "publisher",
     str_detect(external_guidance, "apa|asa|cell star|frontiersin") ~ "publisher",
     TRUE ~ NA_character_
   ))
