@@ -338,7 +338,7 @@ d_coding <-
     str_detect(external_guidance, "p?risma(?!-p)") ~ "prisma",
     str_detect(external_guidance, "st?rega") ~ "strega",
     str_detect(external_guidance, "strobe(?!-me)") ~ "strobe",
-    #str_detect(external_guidance, "nature life sciences") ~ "nature life sciences reporting",
+    str_detect(external_guidance, "arrive guidelines") ~ "arrive",
     str_detect(external_guidance, "https://www.nlm.nih.gov/services/research_report_guide.html") ~ "nlm research reporting guidelines and initiatives (https://www.nlm.nih.gov/services/research_report_guide.html)",
     str_detect(external_guidance, "nih preclinical|^nih$") ~ "nih principles and guidelines for reporting preclinical research",
     str_detect(external_guidance, "https://www.amstat.org/asa/your-career/ethical-guidelines-for-statistical-practice.aspx") ~ "asa (https://www.amstat.org/asa/your-career/ethical-guidelines-for-statistical-practice.aspx)",
