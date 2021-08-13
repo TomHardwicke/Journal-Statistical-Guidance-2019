@@ -14,7 +14,7 @@ d_coding <- d_coding %>%
 write_csv(d_coding,here("data","primary","data_coding.csv")) # save file to primary data folder
 
 d_journals <- read_csv(here("data","raw","statGuide_journalList - PPPR_journalList.csv")) %>% # load raw data
-  select(-`TH check`) # remove column
+  select(-`TH check`,-coder) # remove columns
 write_csv(d_journals,here("data","primary","data_journals.csv")) # save file to primary data folder
 
 

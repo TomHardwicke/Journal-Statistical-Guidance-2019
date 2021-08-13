@@ -1,7 +1,7 @@
 ---
 title: "An assessment of statistical guidance for authors at influential academic journals across scientific disciplines: Preliminary analysis"
-author: "Maia & Tom"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+author: "Analysis performed by: Maia Salholz-Hillel & Tom Hardwicke"
+date: "Last updated: `r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -41,27 +41,28 @@ load(here('data','processed','lookup_external_guidance.rds'))
 theme_gtsummary_compact() # set table theme
 ```
 
+## Introduction
 <br>
-We have now completed data collection for the first phase of this project in which we extracted author-facing statistical guidance provided by the top-15 journals (by Impact Factor) in each of 22 scientific disciplines (i.e., total N = 330 journals). The preregistered study protocol is available [here](https://osf.io/cz9g3/). 
+We have now completed data collection for the first phase of this project. We extracted author-facing statistical guidance provided by the top-15 journals (by Impact Factor) in each of 22 scientific disciplines (i.e., total N = 330 journals). The preregistered study protocol is available [here](https://osf.io/cz9g3/). Below we present a preliminary analysis of the phase one data and highlight some issues to discuss as a team.
 
-> *Operational definition of statistical guidance*: guidance related to the appropriate selection, implementation, reporting, and interpretation of statistical analyses
+## Method summary
+
+> **Operational definition of statistical guidance**: any advice or instruction related to the appropriate selection, implementation, reporting, or interpretation of statistical analyses.
 
 We recorded whether each journal:
 
 * Provided any statistical guidance at all
 * Had a dedicated statistical guidance section
 * Referred to statistical guidance in external sources (e.g., reporting guidelines or articles)
-
-*Note:* When journals referred to guidance in external sources, we have recorded the names of the sources, but *we have currently not extracted guidance from those sources*. We return to this point in the *issues to address* section at the end of this document.
-
 * If any statistical guidance was provided by the journal, we coded (YES/NO) whether it mentioned each of 20 statistical topics (e.g., "p-values"), and extracted the verbatim text.
 
-All data extraction was performed by a first coder (DS, MM, TB, MSH) and a second coder (TEH) with differences resolved through discussion.
+**Note:** When journals referred to guidance in external sources, we have recorded the names of the sources, but *we have currently not extracted guidance from those sources*. We return to this point in the *issues to address* section at the end of this document.
 
-*Note* Some publishers provided statistical guidance that was shared across their portfolio journals (specifically, 32 Nature journals, 12 Cell journals, 2 Frontiers journals) . Publisher guidance was coded by two team members (as above), but is represented in our data and analysis for each individual journal the guidance applies to. For example, the Nature guidance is inherited by 32 journals so appears 32 times in the dataset.
+All data extraction was performed by a first coder (DS, MM, TB, MSH) and a second coder (TEH) with any coding differences resolved through discussion.
 
-Below we present a preliminary analysis of the phase one data.
+**Note** Some publishers provided statistical guidance that was shared across their portfolio of journals (specifically, 32 Nature journals, 12 Cell journals, and 2 Frontiers journals) . Publisher guidance was coded by two team members (as above), but is represented in our data and analysis for each individual journal the guidance applies to. For example, the Nature guidance is inherited by 32 journals so appears 32 times in the dataset.
 
+## Results
 
 Look at counts and proportions mentioning each topic. Use all journals for denominator. Overall and by field.
 
@@ -161,3 +162,8 @@ lookup_external_guidance %>%
   count(guidance_type) %>% 
   kable()
 ```
+
+## Issues to address
+
+* Pre-registration including general clinical trials advice
+* Coding of external guidance

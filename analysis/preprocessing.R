@@ -425,11 +425,11 @@ lookup_external_guidance <-
     TRUE ~ NA_character_
   ))
 
-readr::write_csv(d_coding, file =  here::here("data", "processed", "d_coding.csv"))
-save(d_coding, file =  here::here("data", "processed", "d_coding.rds"))
+# bind d_coding and d_journals
+d_all <- inner_join(d_coding,d_journals, by = 'journal')
 
-readr::write_csv(d_journals, file =  here::here("data", "processed", "d_journals.csv"))
-save(d_journals, file =  here::here("data", "processed", "d_journals.rds"))
+readr::write_csv(d_all, file =  here::here("data", "processed", "d_all.csv"))
+save(d_coding, file =  here::here("data", "processed", "d_all.rds"))
 
 readr::write_csv(lookup_external_guidance, file =  here::here("data", "processed", "lookup_external_guidance.csv"))
 save(lookup_external_guidance, file =  here::here("data", "processed", "lookup_external_guidance.rds"))
