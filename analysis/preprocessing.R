@@ -10,6 +10,7 @@ library(janitor)
 d_coding <- read_csv(here::here("data", "primary", "data_coding.csv"))
 d_journals <- read_csv(here::here("data", "primary", "data_journals.csv"))
 
+# Clean up column names
 d_journals <-
   d_journals %>% 
   
@@ -75,9 +76,6 @@ d_coding <-
   
   # Check for expected coder combinations
   assert(in_set("DS/TH", "MM/TH", "MSH/TH", "TB/TH"), coder) %>% 
-  
-  # Check that there is one row per journal
-  verify(nrow(.) == nrow(d_journals)) %>%
   
   # Check that journals are unique
   assert(is_uniq, journal) %>% 
@@ -151,7 +149,69 @@ d_coding <-
     vars(!!!vars_bool), ~. %>% filter(has_internal_guidance)
   )
 
+# SHARED PUBLISHER-LEVEL GUIDANCE -------------------------------------------------------
 
+# remove shared guidance from d_coding and retain in separate dataframe
+d_coding_shared <- d_coding %>% 
+  filter(str_detect(journal, "SHARED")) %>%
+  filter(journal %in% c("SHARED: Nature consolidated", "SHARED: Frontiers", "SHARED: STAR Methods")) # retain only the shared guidance we need (i.e., drop individual Nature guidelines which are covered by Nature consolidated)
+
+d_coding <- d_coding %>% 
+  filter(!str_detect(journal, "SHARED"))
+
+# Identify journals that inherit publisher guidance 
+# NB - there is one exception - the journal Scientific Data inherits the publisher guidance, but also has its own journal specific guidance
+# to address this, we have created a special row for the journal Scientific Data 
+natureJournals <- d_coding %>%
+  filter(str_detect(external_guidance, regex("nature life", ignore_case = T))) %>%
+  filter(journal != "Scientific Data") %>%
+  pull(journal)
+
+cellJournals <- d_coding %>%
+  filter(str_detect(external_guidance, regex("\\bstar\\b", ignore_case = T))) %>%
+  pull(journal)
+
+frontiersJournals <- d_coding %>%
+  filter(str_detect(external_guidance, regex("frontiers", ignore_case = T))) %>%
+  pull(journal)
+
+# For each publisher (nature, cell, frontiers) create a new dataframe from d_coding that identifies coders and journals
+# create a new dataframe from d_coding shared that represents the publisher guidance
+# bind these two dataframes
+
+nature_df1 <- d_coding %>% filter(journal %in% natureJournals) %>%
+  select(coder, journal)
+
+nature_df2 <- d_coding_shared %>% filter(journal == "SHARED: Nature consolidated") %>%
+  select(-coder, -journal)
+
+nature_shared <- bind_cols(nature_df1, nature_df2)
+
+cell_df1 <- d_coding %>% filter(journal %in% cellJournals) %>%
+  select(coder, journal)
+
+cell_df2 <- d_coding_shared %>% filter(journal == "SHARED: STAR Methods") %>%
+  select(-coder, -journal)
+
+cell_shared <- bind_cols(cell_df1, cell_df2)
+
+frontiers_df1 <- d_coding %>% filter(journal %in% frontiersJournals) %>%
+  select(coder, journal)
+
+frontiers_df2 <- d_coding_shared %>% filter(journal == "SHARED: Frontiers") %>%
+  select(-coder, -journal)
+
+frontiers_shared <- bind_cols(frontiers_df1, frontiers_df2)
+
+allPublishers_shared <- bind_rows(nature_shared, cell_shared, frontiers_shared)
+
+# remove journals from d_coding and replace with the dataframes where they are attached to publisher guidance
+d_coding <- d_coding %>% filter(journal %notin% allPublishers_shared$journal)
+d_coding <- bind_rows(d_coding,allPublishers_shared)
+
+# Check that there is one row per journal in d_coding
+d_coding <- d_coding %>% verify(nrow(.) == nrow(d_journals))
+  
 # EXTERNAL GUIDANCE -------------------------------------------------------
 
 # 89; too many guidelines for boolean columns; how to organize? for now semi-colon separated column, but could nest
@@ -363,17 +423,6 @@ lookup_external_guidance <-
     str_detect(external_guidance, "apa|asa|cell star|frontiersin") ~ "publisher",
     TRUE ~ NA_character_
   ))
-
-# Tom addition: identify journals that inherit publisher guidance and insert that publisher guidance into the journal row
-# NB - there is one exception - the journal Scientific Data inherits the publisher guidance, but also has its own journal specific guidance, so we need to handle this one separately
-natureJournals <- d_coding %>%
-  filter(str_detect(external_guidance_list, "nature"))
-
-cellJournals <- d_coding %>%
-  filter(str_detect(external_guidance_list, "cell"))
-
-frontiersJournals <- d_coding %>%
-  filter(str_detect(external_guidance_list, "frontiers"))
 
 readr::write_csv(d_coding, file =  here::here("data", "processed", "d_coding.csv"))
 save(d_coding, file =  here::here("data", "processed", "d_coding.rds"))

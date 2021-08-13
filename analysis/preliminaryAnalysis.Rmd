@@ -1,5 +1,7 @@
 ---
 title: "An assessment of statistical guidance for authors at influential academic journals across scientific disciplines: Preliminary analysis"
+author: "Maia & Tom"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -18,6 +20,11 @@ library(here) # for finding files
 library(gtsummary) # for summary tables
 ```
 
+```{r load_functions}
+# load custom functions
+source(here('analysis','functions.R'))
+```
+
 ```{r perform_preprocessing}
 # loads raw data, performs preprocessing, saves preprocessed files
 source(here('analysis','preprocessing.R'))
@@ -30,15 +37,22 @@ load(here('data','processed','d_journals.rds'))
 load(here('data','processed','lookup_external_guidance.rds'))
 ```
 
-```{r load_functions}
-# load custom functions
-source(here('analysis','functions.R'))
-```
+
 
 ```{r set_style_defaults}
-theme_gtsummary_compact()
+theme_gtsummary_compact() # set table theme
 ```
+
+<br>
+We have now completed data collection for the first phase of this project. The preregistered study protocol is available [here](https://osf.io/cz9g3/). Below we present a preliminary analysis of the phase one data.
+
+There are three types of guidance:
+* journal specific i.e., guidance written specifically for a particular journal and including in author-facing instructions/guidance documentation
+* publisher i.e., guidance written for a group of journals that share the same publisher, for example "Cell STAR Methods"
+* external i.e., academic papers or non-publisher reporting guidelines (usually present on EQUATOR)
+
 Look at counts and proportions mentioning each topic. Use all journals for denominator. Overall and by field.
+
 ``````{r tbl_counts_props}
 d_journals %>% 
   select(journal, esi_field) %>% 
@@ -59,11 +73,13 @@ d_journals %>%
   modify_footnote(everything() ~ NA) %>% 
   modify_caption("**Number and proportion of journals overall and by field providing internal statistical guidance by topic.** Denominator for all proportions is the number of journals in the field, regardless of whether the journal has internal guidance.")
 ```
+
 Some initial observations
 - Math and computer science are indeed at 0% across the board.
 - Clinical medicine has 100% guidance. Also high in related field: biology & biochemistry, immunology, molecular bio & genetics. Also psych and neuro fields.
 
 Try a mosaic plot for internal guidance...nope!
+
 ```{r plot_internal_guidance_mosaic}
 my_palette <- c("lightcoral", "lightgrey", "lightblue")
 
@@ -111,6 +127,7 @@ d_internal_guidance <-
 ```
 
 Try bar chart
+
 ```{r plot_internal_guidance_bar}
 d_internal_guidance %>% 
   ggplot(aes(y = topic, fill = outcome)) +
@@ -119,12 +136,14 @@ d_internal_guidance %>%
 ```
 
 Look at external guidance
+
 ```{r tbl_external_guidance}
 lookup_external_guidance %>% 
   knitr::kable()
 ```
 
 External guidance types
+
 ```{r tbl_external_guidance_types}
 lookup_external_guidance %>% 
   count(guidance_type) %>% 
