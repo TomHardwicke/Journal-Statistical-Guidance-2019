@@ -37,19 +37,31 @@ load(here('data','processed','d_journals.rds'))
 load(here('data','processed','lookup_external_guidance.rds'))
 ```
 
-
-
 ```{r set_style_defaults}
 theme_gtsummary_compact() # set table theme
 ```
 
 <br>
-We have now completed data collection for the first phase of this project. The preregistered study protocol is available [here](https://osf.io/cz9g3/). Below we present a preliminary analysis of the phase one data.
+We have now completed data collection for the first phase of this project in which we extracted author-facing statistical guidance provided by the top-15 journals (by Impact Factor) in each of 22 scientific disciplines (i.e., total N = 330 journals). The preregistered study protocol is available [here](https://osf.io/cz9g3/). 
 
-There are three types of guidance:
-* journal specific i.e., guidance written specifically for a particular journal and including in author-facing instructions/guidance documentation
-* publisher i.e., guidance written for a group of journals that share the same publisher, for example "Cell STAR Methods"
-* external i.e., academic papers or non-publisher reporting guidelines (usually present on EQUATOR)
+> *Operational definition of statistical guidance*: guidance related to the appropriate selection, implementation, reporting, and interpretation of statistical analyses
+
+We recorded whether each journal:
+
+* Provided any statistical guidance at all
+* Had a dedicated statistical guidance section
+* Referred to statistical guidance in external sources (e.g., reporting guidelines or articles)
+
+*Note:* When journals referred to guidance in external sources, we have recorded the names of the sources, but *we have currently not extracted guidance from those sources*. We return to this point in the *issues to address* section at the end of this document.
+
+* If any statistical guidance was provided by the journal, we coded (YES/NO) whether it mentioned each of 20 statistical topics (e.g., "p-values"), and extracted the verbatim text.
+
+All data extraction was performed by a first coder (DS, MM, TB, MSH) and a second coder (TEH) with differences resolved through discussion.
+
+*Note* Some publishers provided statistical guidance that was shared across their portfolio journals (specifically, 32 Nature journals, 12 Cell journals, 2 Frontiers journals) . Publisher guidance was coded by two team members (as above), but is represented in our data and analysis for each individual journal the guidance applies to. For example, the Nature guidance is inherited by 32 journals so appears 32 times in the dataset.
+
+Below we present a preliminary analysis of the phase one data.
+
 
 Look at counts and proportions mentioning each topic. Use all journals for denominator. Overall and by field.
 
