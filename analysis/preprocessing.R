@@ -185,7 +185,8 @@ nature_df1 <- d_coding %>% filter(journal %in% natureJournals) %>%
 nature_df2 <- d_coding_shared %>% filter(journal == "SHARED: Nature consolidated") %>%
   select(-coder, -journal)
 
-nature_shared <- bind_cols(nature_df1, nature_df2)
+nature_shared <- bind_cols(nature_df1, nature_df2) %>%
+  mutate(publisher_guidance = "Nature") # add a marker to say these journals share Nature publisher guidance
 
 cell_df1 <- d_coding %>% filter(journal %in% cellJournals) %>%
   select(coder, journal)
@@ -193,7 +194,8 @@ cell_df1 <- d_coding %>% filter(journal %in% cellJournals) %>%
 cell_df2 <- d_coding_shared %>% filter(journal == "SHARED: STAR Methods") %>%
   select(-coder, -journal)
 
-cell_shared <- bind_cols(cell_df1, cell_df2)
+cell_shared <- bind_cols(cell_df1, cell_df2) %>%
+  mutate(publisher_guidance = "Cell") # add a marker to say these journals share Cell publisher guidance
 
 frontiers_df1 <- d_coding %>% filter(journal %in% frontiersJournals) %>%
   select(coder, journal)
@@ -201,20 +203,25 @@ frontiers_df1 <- d_coding %>% filter(journal %in% frontiersJournals) %>%
 frontiers_df2 <- d_coding_shared %>% filter(journal == "SHARED: Frontiers") %>%
   select(-coder, -journal)
 
-frontiers_shared <- bind_cols(frontiers_df1, frontiers_df2)
+frontiers_shared <- bind_cols(frontiers_df1, frontiers_df2) %>%
+  mutate(publisher_guidance = "Frontiers") # add a marker to say these journals share Frontiers publisher guidance
 
 scientific_data_consolidated <- d_coding_shared %>% filter(journal == "SHARED: Scientific Data Consolidated") %>% # extract the special row for Scientific Data Consolidated
   mutate(journal = "Scientific Data")
 
-allPublishers_shared <- bind_rows(nature_shared, cell_shared, frontiers_shared, scientific_data_consolidated)
+allPublishers_shared <- bind_rows(nature_shared, cell_shared, frontiers_shared, scientific_data_consolidated) %>%
+  mutate(has_publisher_guidance = T) # add a marker to say these journals have shared publisher guidance
 
 # remove journals from d_coding and replace with the dataframes where they are attached to publisher guidance
-d_coding <- d_coding %>% filter(journal %notin% allPublishers_shared$journal)
+d_coding <- d_coding %>% filter(journal %notin% allPublishers_shared$journal) %>%
+  mutate(has_publisher_guidance = F, publisher_guidance = NA) # add a marker to say these journals do not have shared publisher guidance
 d_coding <- bind_rows(d_coding,allPublishers_shared)
 
 # Check that there is one row per journal in d_coding
 d_coding <- d_coding %>% verify(nrow(.) == nrow(d_journals))
   
+
+
 # EXTERNAL GUIDANCE -------------------------------------------------------
 
 # 89; too many guidelines for boolean columns; how to organize? for now semi-colon separated column, but could nest
