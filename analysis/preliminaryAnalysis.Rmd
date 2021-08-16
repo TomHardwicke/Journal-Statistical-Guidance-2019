@@ -2,7 +2,8 @@
 title: "An assessment of statistical guidance for authors at influential academic journals across scientific disciplines: Preliminary analysis"
 author: "Analysis performed by: Maia Salholz-Hillel & Tom Hardwicke"
 date: "Last updated: `r format(Sys.time(), '%d %B, %Y')`"
-output: html_document
+output:
+  bookdown::html_document2
 editor_options: 
   chunk_output_type: console
 ---
@@ -18,6 +19,9 @@ library(tidyverse) # for data munging
 library(tidylog) # inline analysis feedback
 library(here) # for finding files
 library(gtsummary) # for summary tables
+library(lemon) # to have axes across all graph facets
+library(ggthemr) # for ggplot theme
+library(ggrepel) # for ggplot text labels
 ```
 
 ```{r load_functions}
@@ -32,20 +36,20 @@ source(here('analysis','preprocessing.R'))
 
 ```{r load_processed_data}
 # loads the processed data files output by the preprocessing performed above
-load(here('data','processed','d_coding.rds'))
-load(here('data','processed','d_journals.rds'))
+load(here('data','processed','d_all.rds'))
 load(here('data','processed','lookup_external_guidance.rds'))
 ```
 
 ```{r set_style_defaults}
 theme_gtsummary_compact() # set table theme
+ggthemr('fresh') # set ggplot theme
 ```
 
-## Introduction
+# Introduction
 <br>
 We have now completed data collection for the first phase of this project. We extracted author-facing statistical guidance provided by the top-15 journals (by Impact Factor) in each of 22 scientific disciplines (i.e., total N = 330 journals). The preregistered study protocol is available [here](https://osf.io/cz9g3/). Below we present a preliminary analysis of the phase one data and highlight some issues to discuss as a team.
 
-## Method summary
+# Methods summary
 
 > **Operational definition of statistical guidance**: any advice or instruction related to the appropriate selection, implementation, reporting, or interpretation of statistical analyses.
 
@@ -60,16 +64,21 @@ We recorded whether each journal:
 
 All data extraction was performed by a first coder (DS, MM, TB, MSH) and a second coder (TEH) with any coding differences resolved through discussion.
 
-**Note** Some publishers provided statistical guidance that was shared across their portfolio of journals (specifically, 32 Nature journals, 12 Cell journals, and 2 Frontiers journals) . Publisher guidance was coded by two team members (as above), but is represented in our data and analysis for each individual journal the guidance applies to. For example, the Nature guidance is inherited by 32 journals so appears 32 times in the dataset.
+```{r shared_publisher_journals}
+# count number of journals that have shared publisher guidance
+publisher_nature_n <- d_all %>% filter(publisher_guidance == "Nature") %>% nrow()
+publisher_cell_n <- d_all %>% filter(publisher_guidance == "Cell") %>% nrow()
+publisher_frontiers_n <- d_all %>% filter(publisher_guidance == "Frontiers") %>% nrow()
+```
 
-## Results
+**Note:** Some publishers provided statistical guidance that was shared across their portfolio of journals (specifically, `r publisher_nature_n` Nature journals, `r publisher_cell_n` Cell journals, and `r publisher_frontiers_n` Frontiers journals) . Publisher guidance was coded by two team members (as above), but is represented in our data and analysis for each individual journal the guidance applies to. For example, the Nature guidance is inherited by 32 journals so appears 32 times in the dataset.
 
-Look at counts and proportions mentioning each topic. Use all journals for denominator. Overall and by field.
+# Results
 
-``````{r tbl_counts_props}
-d_journals %>% 
-  select(journal, esi_field) %>% 
-  left_join(d_coding, ., by = "journal") %>% 
+```{r summarise_data}
+
+# couldn't figure out to extract summary data from gtsummary::tblsummary so making my own summary dataframe
+sum_tab <- d_all %>%
   
   # Recode NAs to FALSE
   mutate(across(
@@ -78,76 +87,262 @@ d_journals %>%
     , ~replace_na(., FALSE) )) %>% 
   
   select(esi_field, starts_with("has_")) %>% 
-  gtsummary::tbl_summary(
-    by = esi_field,
-      # statistic = list(everything() ~ "{p}% ({n} / {N})")
+  group_by(esi_field) %>%
+  summarise(across(starts_with("has_"), list(n = sum, N = ~n()), .names = "{col}__{fn}")) %>%
+  adorn_totals(name = 'OVERALL') %>%
+  pivot_longer(cols = !esi_field, names_to = c('variable', '.value'), names_sep = '__', names_prefix = 'has_') %>%
+  mutate(prop = n/N, percent = round(prop*100, 0)) %>%
+  mutate(esi_abbr = case_when( # creating abbreivated field labels
+    esi_field == "OVERALL" ~ "OVERALL",
+    esi_field == "AGRICULTURAL SCIENCES" ~ "AGRI",
+    esi_field == "BIOLOGY & BIOCHEMISTRY" ~ "BIO",       
+    esi_field == "CHEMISTRY" ~ "CHEM" ,                   
+    esi_field == "CLINICAL MEDICINE" ~ "MED",           
+    esi_field == "COMPUTER SCIENCE" ~ "COMSCI",             
+    esi_field == "ECONOMICS & BUSINESS" ~ "ECON",         
+    esi_field == "ENGINEERING" ~ "ENGIN",                  
+    esi_field == "ENVIRONMENT_ECOLOGY" ~ "ECO",         
+    esi_field == "GEOSCIENCES" ~ "GEO",                  
+    esi_field == "IMMUNOLOGY" ~ "IMMUN",                   
+    esi_field == "MATERIALS SCIENCE" ~ "MATSCI",            
+    esi_field == "MATHEMATICS" ~ "MATH",                
+    esi_field == "MICROBIOLOGY" ~ "MICBIO",                 
+    esi_field == "MOLECULAR BIOLOGY & GENETICS" ~ "MOLBIO", 
+    esi_field == "Multidisciplinary" ~ "MULTI",            
+    esi_field == "NEUROSCIENCE & BEHAVIOR" ~ "NEURO",     
+    esi_field == "PHARMACOLOGY & TOXICOLOGY" ~ "PHARM",    
+    esi_field == "PHYSICS" ~ "PHYS",                     
+    esi_field == "PLANT & ANIMAL SCIENCE" ~ "PLANT",       
+    esi_field == "PSYCHIATRY_PSYCHOLOGY" ~ "PSY",       
+    esi_field == "SOCIAL SCIENCES, GENERAL" ~ "SOCSCI",     
+    esi_field == "SPACE SCIENCE" ~ "SPACE"          
+  )) %>%
+  mutate(esi_field_with_abbr = paste0(esi_field,' (', esi_abbr,')'))
+
+# get fields with no statistical guidance at all
+null_fields <- sum_tab %>% 
+  filter(
+    variable == "guidance",
+    prop == 0
   ) %>%
-  add_overall %>% 
-  modify_footnote(everything() ~ NA) %>% 
-  modify_caption("**Number and proportion of journals overall and by field providing internal statistical guidance by topic.** Denominator for all proportions is the number of journals in the field, regardless of whether the journal has internal guidance.")
+  pull(esi_field)
+
+# select only data on general any/internal/external statistical guidance classifications 
+sum_tab_general <- sum_tab %>%
+  filter(variable %in% c('guidance', 'internal_guidance', 'internal_guidance_section', 'external_guidance')) %>% # select only data on general classifications
+  mutate(variable = factor(variable, levels = c('guidance', 'internal_guidance', 'internal_guidance_section', 'external_guidance'))) # set variable order
+
+# select only data on topics
+sum_tab_topics <- sum_tab %>%
+  filter(esi_field %notin% null_fields) %>% # remove fields that have no statistical guidance at all
+  filter(variable %notin% c('guidance', 'internal_guidance', 'internal_guidance_section', 'external_guidance')) %>% # select only data on topics
+  rename(topic = variable)
+
+# get list of statistical topics in order of overall proportions
+ordered_topics <- sum_tab_topics %>%
+  filter(esi_field == "OVERALL") %>%
+  arrange(desc(prop)) %>% # order from highest to lowest
+  pull(topic)
+
+# set order of topics
+sum_tab_topics <- sum_tab_topics %>%
+  mutate(topic = factor(topic, levels = ordered_topics))
 ```
+
+Figure 1 shows the percentage of journals in each scientific discipline (N = 15) and overall (N = 330) that offered (a) any statistical guidance (`r sum_tab %>% filter(esi_field == "OVERALL", variable == "guidance") %>% pull(percent)`% overall); (b) journal-specific statistical guidance (`r sum_tab %>% filter(esi_field == "OVERALL", variable == "internal_guidance") %>% pull(percent)`% overall); (c) a dedicated statistical guidance section (`r sum_tab %>% filter(esi_field == "OVERALL", variable == "internal_guidance_section") %>% pull(percent)`% overall); or referred to (d) external guidelines, such as reporting guidelines or academic articles (`r sum_tab %>% filter(esi_field == "OVERALL", variable == "external_guidance") %>% pull(percent)`% overall).
+
+How much guidance was provided? Some journals mention just one thing, some mention several.
 
 Some initial observations
 - Math and computer science are indeed at 0% across the board.
 - Clinical medicine has 100% guidance. Also high in related field: biology & biochemistry, immunology, molecular bio & genetics. Also psych and neuro fields.
 
-Try a mosaic plot for internal guidance...nope!
+<br>
+
+```{r fig.cap = "Percentage of journals offering statistical guidance by scientific discipline. Overall proportion shown by black diamond. Graphs ordered from left to right and top to bottom in order of highest proportion overall across scientific disciplines.", fig.topcaption = TRUE, fig.width = 10, fig.height = 8}
+# extract overall data
+sum_tab_general_overall <- sum_tab_general %>%
+  filter(esi_field == "OVERALL")
+
+sum_tab_general %>%
+  filter(esi_field != "OVERALL") %>%
+  ggplot(aes(x=percent, y = 1, colour = str_wrap(esi_field_with_abbr,25))) +
+  facet_rep_wrap(facets = vars(variable), ncol = 2, nrow = 2) +
+  coord_capped_cart(bottom='both', left='both') + # to break axes in bottom left corner
+  geom_point(size = 5, position = position_stack(), alpha = .5) +
+  geom_point(size = 6, position = position_stack(), data = sum_tab_general_overall, colour = 'black', shape = 18) +
+  geom_text_repel(
+    aes(label = ifelse(percent > 0,esi_abbr,''),
+        segment.square = T,
+        segment.inflect = T), #
+    #point.padding = 0.2,
+    force_pull   = 0, # do not pull toward data points
+    nudge_y      = 15,
+    #nudge_x = 5,
+    direction    = "x",
+    angle        = 90,
+    hjust        = 0,
+    segment.size = 0.2,
+    segment.curvature = -1e-20,
+    max.iter = 1e4, max.time = 1,
+    max.overlaps = Inf, # ensure all labels are shown even if overlapping
+    show.legend = FALSE # do not add legend entry
+  ) +
+  scale_y_continuous(limits = c(0,15), name = 'number of scientific disciplines') +
+  xlim(0,100) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid.major.y = element_blank(),
+        legend.position = 'bottom') +
+  scale_colour_discrete(name = 'Scientific disciplines') +
+  guides(colour = guide_legend(nrow = 6, title.position = 'top'))
+```
+
+```{r fig.cap = "Percentage of journals offering statistical guidance on twenty key topics by scientific discipline. Overall proportion shown by black diamond. For presentational purposes, disciplines offering no guidance on individual topics are shown, but not labelled. Two scientific disciplines in which no journals offered any statistical guidance at all are not shown. Graphs ordered from left to right and top to bottom in order of highest proportion overall across scientific disciplines.", fig.topcaption = TRUE, fig.width = 10, fig.height = 28}
+# extract overall data
+sum_tab_topics_overall <- sum_tab_topics %>%
+  filter(esi_field == "OVERALL")
+
+sum_tab_topics %>%
+  filter(esi_field != "OVERALL") %>%
+  ggplot(aes(x=percent, y = 1, colour = str_wrap(esi_field_with_abbr,25))) +
+  facet_rep_wrap(facets = vars(topic), ncol = 2) +
+  coord_capped_cart(bottom='both', left='both') + # to break axes in bottom left corner
+  geom_point(size = 5, position = position_stack(), alpha = .5) +
+  geom_point(size = 6, position = position_stack(), data = sum_tab_topics_overall, colour = 'black', shape = 18) +
+  geom_text_repel(
+    aes(label = ifelse(percent > 0,esi_abbr,''),
+        segment.square = T,
+        segment.inflect = T), #
+    #point.padding = 0.2,
+    force_pull   = 0, # do not pull toward data points
+    nudge_y      = 25,
+    nudge_x = 10,
+    direction    = "x",
+    angle        = 90,
+    hjust        = 0,
+    segment.size = 0.2,
+    segment.curvature = -1e-20,
+    max.iter = 1e4, max.time = 1,
+    max.overlaps = Inf, # ensure all labels are shown even if overlapping
+    show.legend = FALSE # do not add legend entry
+  ) +
+  scale_y_continuous(limits = c(0,25), name = 'number of scientific disciplines') +
+  xlim(0,100) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid.major.y = element_blank(),
+        legend.position = 'bottom') +
+  scale_colour_discrete(name = 'Scientific disciplines') +
+  guides(colour = guide_legend(nrow = 5, title.position = 'top'))
+```
+
+
+```{r}
+# try binning method
+# forPlot %>%
+#   #mutate(bin = cut_width(prop, width = 0.2, center = 0.1)) %>%
+#   mutate(bin = cut_width(percent, width = 20, center = 10)) %>%
+#   group_by(esi_field,bin) %>%
+#   summarise(n = n()) %>%
+#   group_by(bin) %>%
+#   summarise(esi_field = esi_field, pos = cumsum(n)) %>%
+#   merge(forPlot, by = "esi_field") %>% # rejoin columns from original dataframe
+#   ggplot(aes(x=percent, y = pos, colour = esi_field)) +
+#   geom_vline(xintercept = sum_tab %>% filter(variable == "guidance", esi_field == "OVERALL") %>% pull(percent)) +
+#   geom_point(size = 5) +
+#   geom_label_repel(aes(label = esi_abbr)) +
+#   theme_minimal() +
+#   theme(axis.title.y = element_blank(),
+#         axis.text.y = element_blank(),
+#         axis.ticks.y = element_blank()) +
+#   scale_colour_discrete()
+```
+
+
+```{r}
+# # trying out a dot histogram
+# d <- sum_tab %>%
+#   #filter(variable %in% c('guidance', 'internal_guidance', 'internal_guidance_section', 'external_guidance')) %>%
+#   filter(variable %in% c('guidance'))
+# 
+# sum_tab %>%
+#   filter(variable %in% c('guidance', 'internal_guidance', 'internal_guidance_section', 'external_guidance')) %>%
+#   ggplot(aes(x = prop, fill=esi_field, label = esi_abbr, group = esi_field)) + 
+#     #geom_histogram(aes(fill=esi_field), binwidth=0.1, colour="grey20", lwd=0.2) +
+#     geom_dotplot(binwidth=0.1, colour="grey20", lwd=0.2, stackgroups = T, binpositions = 'all', method = 'histodot', dotsize = 0.25, stackdir = 'center') +
+#     facet_grid(rows = vars(variable)) +
+#     theme(axis.title.y = element_blank(), # y axis labels are meaningless on this plot, remove them
+#       axis.text.y = element_blank(),
+#       legend.position = 'bottom')
+# 
+#   # looks ok... but difficult to tell which field is which (too many similar colours, and have to keep looking at legend)
+#   # could we put the field abbreviation text inside the dots? (maybe shorten to two letters)
+#   # also for OVERALL we need something different, e.g., a black vertical line
+```
 
 ```{r plot_internal_guidance_mosaic}
 my_palette <- c("lightcoral", "lightgrey", "lightblue")
 
-d_internal_guidance <-
-  d_coding %>% 
-  select(journal, starts_with("has_") & (!contains("guidance"))) %>% 
+d_internal_guidance_noPublisher <-
+  d_all %>%
+  filter(has_internal_guidance == T, # select journals with internal guidance
+         has_publisher_guidance == F | journal == "Scientific Data") # remove journals with shared publisher guidance except for Scientific Data (which shared guidance and its own guidance)
+
+# were going to represent journals with publisher guidance in a single row per publisher. 
+# select exemplar journals for each publisher
+publisher_nature <- d_all %>% filter(journal == "Nature") %>% mutate(journal = paste0("Nature journals"," (n=", publisher_nature_n,')'))
+publisher_cell <- d_all %>% filter(journal == "CELL") %>% mutate(journal = paste0("Cell journals"," (n=", publisher_cell_n,')'))
+publiher_frontiers <- d_all %>% filter(journal == "Frontiers in Microbiology") %>% mutate(journal = paste0("Frontiers journals"," (n=", publisher_frontiers_n,')'))
+
+# combine the journals with no publisher guidance with the publisher guidance rows
+d_internal_guidance <- bind_rows(d_internal_guidance_noPublisher, publisher_nature, publisher_cell, publiher_frontiers)
+
+# for journals with shared publisher guidance we only need only row
+
+plt <- d_internal_guidance %>%
+  select(journal, starts_with("has_") & (!contains("guidance"))) %>%
   pivot_longer(
     -journal,
     names_to = "topic",
     values_to = "outcome",
     values_drop_na = FALSE
-  ) %>% 
+  ) %>%
   mutate(outcome = case_when(
     outcome ~ "Mentioned",
     !outcome ~ "Not mentioned",
     TRUE ~ "Not applicable (No internal guidance)"
-  ))
-
-# plt <- 
-  d_internal_guidance %>%
-  ggplot(aes(x = topic, y = factor(journal))) +
-  geom_tile(aes(fill = outcome), colour = 'black', size = .25) +
-  scale_fill_manual(
-    values = my_palette,
-    # labels = c('Not mentioned', 'Unclear', 'Mentioned')
-  ) +
-  scale_x_discrete(position = 'top') +
-  papaja::theme_apa() +
-  xlab("Topics mentioned") +
-  theme(plot.margin = margin(0, 50, 0, 0),
-        axis.ticks = element_blank(),
-        axis.title.y =element_blank(),
-        panel.grid.major=element_line(colour=NA), 
-        panel.grid.minor=element_line(colour=NA),
-        legend.position = 'bottom',
-        axis.text.x  = element_text(angle = 45, hjust = 0),
-        strip.background = element_rect(
-          color="black", fill="white", size=0, linetype="solid"
-        ),
-        strip.text.y = element_text(
-          size = 8, color = "black", face = 'bold'
-        ))
+  )) %>%
+  ggplot(aes(x = topic, y = str_wrap(journal,25))) +
+    geom_tile(aes(fill = outcome), colour = 'black', size = .25) +
+    scale_fill_manual(
+      values = my_palette,
+      # labels = c('Not mentioned', 'Unclear', 'Mentioned')
+    ) +
+    scale_x_discrete(position = 'top') +
+    #papaja::theme_apa() +
+    xlab("Topics mentioned") +
+    theme(plot.margin = margin(0, 50, 0, 0),
+          axis.ticks = element_blank(),
+          axis.title.y =element_blank(),
+          axis.line = element_blank(),
+          panel.grid.major=element_line(colour=NA),
+          panel.grid.minor=element_line(colour=NA),
+          legend.position = 'bottom',
+          axis.text.x  = element_text(angle = 45, hjust = 0),
+          strip.background = element_rect(
+            color="black", fill="white", size=0, linetype="solid"
+          ),
+          strip.text.y = element_text(
+            size = 8, color = "black", face = 'bold'
+          ))
 
 # ggsave('internal-guidance.png', width = 11, height = 10)
 ```
 
-Try bar chart
-
-```{r plot_internal_guidance_bar}
-d_internal_guidance %>% 
-  ggplot(aes(y = topic, fill = outcome)) +
-  geom_bar() +
-  scale_fill_manual(values = my_palette)
+```{r fig.height = 40}
+plt
 ```
-
 Look at external guidance
 
 ```{r tbl_external_guidance}
@@ -163,7 +358,31 @@ lookup_external_guidance %>%
   kable()
 ```
 
-## Issues to address
+# Issues to address
 
 * Pre-registration including general clinical trials advice
 * Coding of external guidance
+
+# Appendix 1
+
+Tabular data (represented in Figures 1 and 2)
+Look at counts and proportions mentioning each topic. Use all journals for denominator. Overall and by field.
+
+```{r tbl_counts_props}
+d_all %>%
+  
+  # Recode NAs to FALSE
+  mutate(across(
+    everything()
+    # starts_with("has_") & (!contains("guidance")) # for internal guidance elements
+    , ~replace_na(., FALSE) )) %>% 
+  
+  select(esi_field, starts_with("has_")) %>% 
+  gtsummary::tbl_summary(
+    by = esi_field,
+      # statistic = list(everything() ~ "{p}% ({n} / {N})")
+  ) %>%
+  add_overall %>% 
+  modify_footnote(everything() ~ NA) %>% 
+  modify_caption("**Number and percentage of journals overall and by scientific discipline providing internal statistical guidance by topic.** Denominator for all proportions is the number of journals in the field, regardless of whether the journal has internal guidance.")
+```
