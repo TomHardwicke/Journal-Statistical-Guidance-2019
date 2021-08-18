@@ -12,7 +12,7 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F, message = F, warning = T)
+knitr::opts_chunk$set(echo = F, message = F, warning = T, fig.topcaption = TRUE)
 ```
 
 ```{r load_packages}
@@ -44,7 +44,7 @@ load(here('data','processed','d_all.rds'))
 load(here('data','processed','lookup_external_guidance.rds'))
 ```
 
-```{r set_style_defaults}
+```{r set_defaults}
 theme_gtsummary_compact() # set table theme
 ggthemr('fresh') # set ggplot theme
 ```
@@ -420,6 +420,59 @@ plt <- d_internal_guidance %>%
 plt
 ```
 
+```{r guidance_examples}
+# get the names of the twenty statistical topics
+topic_names <- d_all %>% 
+  select(starts_with("has_"), -c(has_guidance, has_external_guidance, has_internal_guidance, has_internal_guidance_section, has_publisher_guidance)) %>% 
+  rename_all(~str_replace(.,"^has_","")) %>% # remove has_ prefix
+  verify(ncol(.) == 20) %>% # check there are twenty columns (topics) as expected
+  colnames()
+
+set.seed(42)
+guidance_examples_tbl <- d_all %>%
+  select(journal, topic_names) %>% 
+  verify(ncol(.) == 21) %>% # check there are 21 columns as expected (i.e., journal and twenty topics)
+  pivot_longer(cols = !journal, names_to = 'topic', values_to = 'verbatim') %>%
+  distinct(verbatim, .keep_all = T) %>%
+  drop_na(verbatim) %>%
+  filter(nchar(verbatim) < 800) %>% # select shorter guidance only
+  group_by(topic) %>%
+  sample_n(2) %>%
+  ungroup() %>%
+  mutate(verbatim = paste0(verbatim,' (',journal,')')) %>% # add journal name to verbatim column
+  select(-journal) %>% # remove journal column
+  mutate(topic_display = case_when( # create display versions of topic names
+    topic == "p_value" ~ "p values",
+    topic == "significance" ~ "statistical significance",
+    topic == "null_hypo" ~ "null hypotheses",
+    topic == "sample_size" ~ "sample size justification",
+    topic == "conf_int" ~ "confidence intervals",
+    topic == "effect_size" ~ "effect sizes",
+    topic == "multi_compare" ~ "multiple comparisons",
+    topic == "subgroup" ~ "subgroup analyses",
+    topic == "baseline_covar" ~ "baseline covariates",
+    topic == "non_param" ~ "non-parametric tests",
+    topic == "sensitivity" ~ "sensitivity analyses",
+    topic == "model_assume" ~ "checking model assumptions",
+    topic == "exclusion" ~ "data exclusions",
+    topic == "outliers" ~ "handling outliers",
+    topic == "missing" ~ "handling missing data",
+    topic == "one_sided" ~ "one-sided tests",
+    topic == "bayes" ~ "Bayesian statistics",
+    topic == "secondary" ~ "secondary outcomes",
+    topic == "prespecify" ~ "prespecification of analyses",
+    topic == "cat_continuous" ~ "categorisation of continuous data"
+  )) %>%
+  select(topic = topic_display,"example guidance" =verbatim)
+```
+
+To give you a flavour of the kind of guidance provided, I have randomly selected two examples (excluding a few very long examples), for each of the twenty statistical topics, and displayed them in Table \@ref(fig:guidanceexamples) below.
+
+```{r guidanceexamples}
+guidance_examples_tbl %>% kable()
+```
+
+
 Look at external guidance
 
 ```{r tbl_external_guidance}
@@ -508,3 +561,19 @@ d_all %>%
 #   # could we put the field abbreviation text inside the dots? (maybe shorten to two letters)
 #   # also for OVERALL we need something different, e.g., a black vertical line
 ```
+
+```{r phase_two}
+# export data for phase two
+d_all %>% filter(has_p_value == T | has_significance == T) %>% 
+  mutate(coder = "TEH") %>% 
+  select(journal, esi_field, p_value, significance) %>%
+  mutate(recommended_required = NA,
+         p_how = NA,
+         p_threshold = NA,
+         stat_sig_ok = NA,
+         stat_sig_alpha = NA) %>%
+  write_csv(here('data','raw','templates','phase_two_pval.csv'))
+
+
+```
+
