@@ -21,7 +21,7 @@ library(papaja) # for article template
 library(tidyverse) # for data munging
 library(tidylog) # inline analysis feedback
 library(here) # for finding files
-library(gtsummary) # for summary tables
+library(gtsummary) # for summary tables note: use dev version `remotes::install_github("ddsjoberg/gtsummary")`
 library(lemon) # to have axes across all graph facets
 library(ggthemr) # for ggplot theme
 library(ggrepel) # for ggplot text labels
@@ -499,6 +499,7 @@ lookup_external_guidance %>%
 Tabular data (represented in Figures 1 and 2). There is a scroll bar at the bottom of the table to see all of the scientific fields.
 
 ```{r tbl_counts_props}
+tbl_counts_props <-
 d_all %>%
   
   # Recode NAs to FALSE
@@ -515,8 +516,15 @@ d_all %>%
   add_overall %>% 
   modify_footnote(everything() ~ NA) %>% 
   modify_caption("**Number and percentage of journals overall and by scientific discipline providing internal statistical guidance by topic.** Denominator for all proportions is the number of journals in the field, regardless of whether the journal has internal guidance.")
+
+tbl_counts_props
 ```
 
+## {gtsummary} in-text demo
+
+> Overall stats are in the `stat_0` column, which is not accessible in the current release of {gtsummary}, so hence use the dev version: `remotes::install_github("ddsjoberg/gtsummary")`.
+
+You can see that around half (`r inline_text(tbl_counts_props, variable = has_guidance, column = stat_0, pattern = "{p}")`%) of journals offered any statistical guidance. Note that this includes `r only_ext` journals which only referred to statistical guidance in external sources (reporting guidelines or academic papers). Just over quarter of journals had a dedicated statistical guidance section of their author instructions (`r inline_text(tbl_counts_props, variable = has_internal_guidance_section, column = stat_0, pattern = "{p}")`%). In two fields (Computer Science and Maths), no journals offered any statistical guidance. Journals in health-related fields were more likely to offer statistical guidance and have dedicated statistical guidance sections. Notably, 100% of the journals in clinical medicine offered some statistical guidance. 
 
 ```{r}
 #### CODE GRAVEYARD - BEWARE ####
