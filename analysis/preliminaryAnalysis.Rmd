@@ -21,7 +21,6 @@ library(papaja) # for article template
 library(tidyverse) # for data munging
 library(tidylog) # inline analysis feedback
 library(here) # for finding files
-library(gtsummary) # for summary tables
 library(lemon) # to have axes across all graph facets
 library(ggthemr) # for ggplot theme
 library(ggrepel) # for ggplot text labels
@@ -45,7 +44,6 @@ load(here('data','processed','lookup_external_guidance.rds'))
 ```
 
 ```{r set_defaults}
-theme_gtsummary_compact() # set table theme
 ggthemr('fresh') # set ggplot theme
 ```
 
@@ -67,7 +65,7 @@ If any statistical guidance was provided by a journal:
 
 * We coded (YES/NO) whether it mentioned each of 20 statistical topics (e.g., "p-values"), and extracted the verbatim text.
 
-**Note:** When journals referred to guidance in external sources, we have recorded the names of the sources, but *we have not currently extracted guidance from those sources*. We return to this point in the *issues to address* section (Section \@ref(issues)) at the end of this document.
+**Note:** When journals referred to guidance in external sources, we have recorded the names of the sources, but *we have not extracted guidance from those sources*. We return to this point in the *issues to address* section (Section \@ref(issues)) at the end of this document.
 
 All data extraction was performed by a first coder (DS, MM, TB, MSH) and a second coder (TEH) with any coding differences resolved through discussion.
 
@@ -78,13 +76,11 @@ publisher_cell_n <- d_all %>% filter(publisher_guidance == "Cell") %>% nrow()
 publisher_frontiers_n <- d_all %>% filter(publisher_guidance == "Frontiers") %>% nrow()
 ```
 
-**Note:** We found that some publishers provided statistical guidance that was shared across their portfolio of journals (specifically, `r publisher_nature_n` Nature journals, `r publisher_cell_n` Cell journals, and `r publisher_frontiers_n` Frontiers journals). Shared publisher guidance was coded by two team members (as above), but is represented in our data and analysis multiple times - once for each individual journal it applies to. For example, the Cell journals guidance is inherited by `r publisher_cell_n` journals so appears `r publisher_cell_n` times in the dataset. Unless stated otherwise, publisher guidance is treated as journal-specific guidance (i.e., not external guidance) in the analyses presented below.
+**Note:** We found that some publishers provided statistical guidance that was shared across their portfolio of journals (specifically, `r publisher_nature_n` Nature journals, `r publisher_cell_n` Cell journals, and `r publisher_frontiers_n` Frontiers journals). Shared publisher guidance was coded by two team members (as above), but is represented in our data and analysis multiple times - once for each individual journal it applies to. For example, the Cell journals' guidance is inherited by `r publisher_cell_n` journals so appears `r publisher_cell_n` times in the dataset. Unless stated otherwise, publisher guidance is treated as journal-specific guidance (i.e., not external guidance) in the analyses presented below.
 
 # Results
 
 ```{r summarise_data}
-
-# couldn't figure out to extract summary data from gtsummary::tblsummary so making my own summary dataframe
 sum_tab <- d_all %>%
   
   # Recode NAs to FALSE
@@ -208,7 +204,7 @@ sum_tab_general %>%
   facet_rep_wrap(facets = vars(var_display), ncol = 2, nrow = 1) +
   coord_capped_cart(bottom='both', left='both') + # to break axes in bottom left corner
   geom_point(size = 5, position = position_stack(), alpha = .5) +
-  geom_point(size = 6, position = position_stack(), data = sum_tab_general_overall, colour = 'black', shape = 18) +
+  geom_point(size = 6, position = position_stack(), data = sum_tab_general_overall, shape = 18, colour = 'black', aes(fill = 'OVERALL')) +
   geom_text_repel(
     aes(label = ifelse(percent > 0,esi_abbr,''),
         segment.square = T,
@@ -232,8 +228,8 @@ sum_tab_general %>%
         axis.ticks.y = element_blank(),
         panel.grid.major.y = element_blank(),
         legend.position = 'bottom') +
-  scale_colour_discrete(name = 'Scientific disciplines') +
-  guides(colour = guide_legend(nrow = 6, title.position = 'top'))
+  guides(colour = guide_legend(nrow = 8, title.position = 'top', title = '')) +
+  guides(fill = guide_legend(nrow = 1, title.position = 'top', title = "Scientific disciplines"))
 ```
 
 <br><br>
@@ -253,7 +249,7 @@ sum_tab_topics %>%
   facet_rep_wrap(facets = vars(topic_display), ncol = 2) +
   coord_capped_cart(bottom='both', left='both') + # to break axes in bottom left corner
   geom_point(size = 5, position = position_stack(), alpha = .5) +
-  geom_point(size = 6, position = position_stack(), data = sum_tab_topics_overall, colour = 'black', shape = 18) +
+  geom_point(size = 6, position = position_stack(), data = sum_tab_topics_overall, shape = 18, colour = 'black', aes(fill = 'OVERALL')) +
   geom_text_repel(
     aes(label = ifelse(percent > 0,esi_abbr,''),
         segment.square = T,
@@ -277,8 +273,8 @@ sum_tab_topics %>%
         axis.ticks.y = element_blank(),
         panel.grid.major.y = element_blank(),
         legend.position = 'bottom') +
-  scale_colour_discrete(name = 'Scientific disciplines') +
-  guides(colour = guide_legend(nrow = 5, title.position = 'top'))
+  guides(colour = guide_legend(order = 1, nrow = 8, title.position = 'top', title = '')) +
+  guides(fill = guide_legend(order = -1, nrow = 1, title.position = 'top', title = "Scientific disciplines"))
 ```
 
 <br>
@@ -499,24 +495,14 @@ lookup_external_guidance %>%
 Tabular data (represented in Figures 1 and 2). There is a scroll bar at the bottom of the table to see all of the scientific fields.
 
 ```{r tbl_counts_props}
-d_all %>%
-  
-  # Recode NAs to FALSE
-  mutate(across(
-    everything()
-    # starts_with("has_") & (!contains("guidance")) # for internal guidance elements
-    , ~replace_na(., FALSE) )) %>% 
-  
-  select(esi_field, starts_with("has_")) %>% 
-  gtsummary::tbl_summary(
-    by = esi_field,
-      # statistic = list(everything() ~ "{p}% ({n} / {N})")
-  ) %>%
-  add_overall %>% 
-  modify_footnote(everything() ~ NA) %>% 
-  modify_caption("**Number and percentage of journals overall and by scientific discipline providing internal statistical guidance by topic.** Denominator for all proportions is the number of journals in the field, regardless of whether the journal has internal guidance.")
+sum_tab %>%
+  mutate(field = paste0(esi_field,' N = ',N),
+         table_data = paste0(n,' (',percent,'%)')) %>%
+  select(field,variable,table_data) %>%
+  pivot_wider(id_cols = variable, names_from = field, values_from = table_data) %>%
+  select(variable, `OVERALL N = 330`, everything()) %>%
+  kable(caption = "**Number and percentage of journals overall and by scientific discipline providing internal statistical guidance by topic.** Denominator for all proportions is the number of journals in the field, regardless of whether the journal has internal guidance.")
 ```
-
 
 ```{r}
 #### CODE GRAVEYARD - BEWARE ####
@@ -568,12 +554,10 @@ d_all %>% filter(has_p_value == T | has_significance == T) %>%
   mutate(coder = "TEH") %>% 
   select(journal, esi_field, p_value, significance) %>%
   mutate(recommended_required = NA,
-         p_how = NA,
-         p_threshold = NA,
-         stat_sig_ok = NA,
+         p_use = NA,
+         p_reporting = NA,
+         stat_sig_use = NA,
          stat_sig_alpha = NA) %>%
   write_csv(here('data','raw','templates','phase_two_pval.csv'))
-
-
 ```
 
