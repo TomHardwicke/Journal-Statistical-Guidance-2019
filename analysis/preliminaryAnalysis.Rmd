@@ -1,14 +1,13 @@
 ---
-title: "An assessment of statistical guidance for authors at influential academic journals across scientific disciplines: Preliminary analysis"
-author: "Analysis performed by: Maia Salholz-Hillel & Tom Hardwicke"
-date: "Last updated: `r format(Sys.time(), '%d %B, %Y')`"
-output:
-  bookdown::html_document2:
-    fig_caption: true
-    number_sections: true
-    global_numbering: true
-editor_options: 
-  chunk_output_type: console
+title: "Cross-disciplinary assessment of statistical guidance provided to authors by influential academic journals"
+description: |
+  Preliminary analysis for study one and study two.
+author:
+  - name: Maia Salholz-Hillel & Tom Hardwicke
+date: "`r Sys.Date()`"
+output: 
+  distill::distill_article:
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -17,28 +16,29 @@ knitr::opts_chunk$set(echo = F, message = F, warning = T, fig.topcaption = TRUE)
 
 ```{r load_packages}
 library(knitr) # for literate programming
-library(papaja) # for article template
 library(tidyverse) # for data munging
-library(tidylog) # inline analysis feedback
+library(janitor) # for data munging
+library(tidylog) # inline code feedback
 library(here) # for finding files
+library(assertr) # for testing
 library(lemon) # to have axes across all graph facets
 library(ggthemr) # for ggplot theme
 library(ggrepel) # for ggplot text labels
 library(scales) # to wrap text on axis labels
+library(rmarkdown) # for paged table
 ```
 
 ```{r load_functions}
-# load custom functions
-source(here('analysis','functions.R'))
+source(here('analysis','functions.R')) # load custom functions
 ```
 
 ```{r perform_preprocessing}
-# loads raw data, performs preprocessing, saves preprocessed files
-source(here('analysis','preprocessing.R'))
+# loads raw data, performs preprocessing, saves processed data files
+#source(here('analysis','preprocessing.R'))
 ```
 
 ```{r load_processed_data}
-# loads the processed data files output by the preprocessing performed above
+# loads the processed data files
 load(here('data','processed','d_all.rds'))
 load(here('data','processed','lookup_external_guidance.rds'))
 ```
@@ -48,14 +48,20 @@ ggthemr('fresh') # set ggplot theme
 ```
 
 # Introduction
-<br>
-We have now completed data collection for the first phase of this project. We extracted author-facing statistical guidance provided by the top-15 journals (by Impact Factor) in each of 22 scientific disciplines (i.e., total N = 330 journals). The preregistered study protocol is available [here](https://osf.io/cz9g3/). Below we present a preliminary analysis of the phase one data and highlight some issues to discuss as a team.
+
+We have now completed dual-coded data collection for the first study of this project and single-coded data collection for the second study of this project. The preregistered study protocol is available [here](https://osf.io/cz9g3/). Below we present a preliminary analysis of the data and highlight some issues to discuss as a team.
 
 # Methods summary
 
-> **Operational definition of statistical guidance**: any advice or instruction related to the appropriate selection, implementation, reporting, or interpretation of statistical analyses.
+## Study one
 
-We recorded whether each journal:
+In November, 2019, we made copies of any documentation (e.g., instructions to authors) that provided author-facing statistical guidance provided by the top-15 journals (ranked by Impact Factor) in each of 22 scientific disciplines (i.e., total N = 330 journals).
+
+**Operational definition of statistical guidance** 
+
+> any advice or instruction related to the appropriate selection, implementation, reporting, or interpretation of statistical analyses.
+
+We then examined this documentation and recorded whether each journal:
 
 * Provided any statistical guidance at all
 * Had a dedicated statistical guidance section
@@ -63,11 +69,11 @@ We recorded whether each journal:
 
 If any statistical guidance was provided by a journal:
 
-* We coded (YES/NO) whether it mentioned each of 20 statistical topics (e.g., "p-values"), and extracted the verbatim text.
-
-**Note:** When journals referred to guidance in external sources, we have recorded the names of the sources, but *we have not extracted guidance from those sources*. We return to this point in the *issues to address* section (Section \@ref(issues)) at the end of this document.
+* We also recorded whether it mentioned each of 20 statistical topics (e.g., "p-values"), and extracted the verbatim text.
 
 All data extraction was performed by a first coder (DS, MM, TB, MSH) and a second coder (TEH) with any coding differences resolved through discussion.
+
+**Note:** When journals referred to guidance in external sources (typically reporting guidelines), we have recorded the names of the sources, but *we have not extracted guidance from those sources*.
 
 ```{r shared_publisher_journals}
 # count number of journals that have shared publisher guidance
@@ -76,9 +82,53 @@ publisher_cell_n <- d_all %>% filter(publisher_guidance == "Cell") %>% nrow()
 publisher_frontiers_n <- d_all %>% filter(publisher_guidance == "Frontiers") %>% nrow()
 ```
 
-**Note:** We found that some publishers provided statistical guidance that was shared across their portfolio of journals (specifically, `r publisher_nature_n` Nature journals, `r publisher_cell_n` Cell journals, and `r publisher_frontiers_n` Frontiers journals). Shared publisher guidance was coded by two team members (as above), but is represented in our data and analysis multiple times - once for each individual journal it applies to. For example, the Cell journals' guidance is inherited by `r publisher_cell_n` journals so appears `r publisher_cell_n` times in the dataset. Unless stated otherwise, publisher guidance is treated as journal-specific guidance (i.e., not external guidance) in the analyses presented below.
+**Note:** We found that some publishers provided statistical guidance that was shared across their portfolio of journals (specifically, `r publisher_nature_n` Nature journals, `r publisher_cell_n` Cell journals, and `r publisher_frontiers_n` Frontiers journals). An additional journal - Scientific Data - shares guidance with other Nature journals, but also has its own specific guidance. Shared publisher guidance was coded by two team members (as above), but is represented in our data and analysis multiple times - once for each individual journal it applies to. For example, the `r publisher_cell_n` journals published by Cell inherit Cell's "STAR Methods" guidance, so this guidance appears `r publisher_cell_n` times in our dataset. 
+
+## Study two
+
+For study two, we planned to more closely examine the guidance provided on five specific topics:
+
+- p-values
+- statistical significance
+- confidence intervals
+- effect sizes
+- sample size justification
+
+We prespecified some information we wanted to extract about these topics; however, when I (Tom) examined the verbatim guidance, I found our prespecified questions and response options to be unsuitable (ambiguous, badly worded, etc). So in an entirely data-dependent and exploratory manner, I instead coded the level of endorsement for each topic/method according to four categories:
+
+1. Explicit endorsement - the journal advises or instructs authors to use this method whenever possible/appropriate.
+2. Implicit endorsement - the journal provides advice on the method, implying endorsement, but does not explictly advise that the method should be used.
+3. Implicit opposition - the journal advises that they would prefer the method is not used, but does not explicitly rule it out.
+4. Explicit opposition - the journal advises that the method should not be used.
+
+This was admittedly quite subjective and I had to 'read between the lines' a bit in order to assign guidance to these categories.
+
+I also categorised reporting advice for three topics as below:
+
+p-values: 
+
+1. Report exact p-values
+2. Report exact p-values unless very small
+3. Report p-values relative to thresholds (e.g., p < .05)
+4. No guidance
+
+Statistical significance:
+
+1. Report alpha
+2. Use specific alpha (e.g., a = .05)
+3. No guidance
+
+Confidence intervals:
+
+1. Report confidence level
+2. Use specific confidence level (e.g., 95%)
+3. No guidance
+
+So far, the data coding for study two has only been performed by me (Tom), though we originally planned for dual-coding (see issues section at the end of this document).
 
 # Results
+
+## Study one
 
 ```{r summarise_data}
 sum_tab <- d_all %>%
@@ -86,16 +136,14 @@ sum_tab <- d_all %>%
   # Recode NAs to FALSE
   mutate(across(
     everything()
-    # starts_with("has_") & (!contains("guidance")) # for internal guidance elements
     , ~replace_na(., FALSE) )) %>% 
-  
   select(esi_field, starts_with("has_")) %>% 
   group_by(esi_field) %>%
   summarise(across(starts_with("has_"), list(n = sum, N = ~n()), .names = "{col}__{fn}")) %>%
   adorn_totals(name = 'OVERALL') %>%
   pivot_longer(cols = !esi_field, names_to = c('variable', '.value'), names_sep = '__', names_prefix = 'has_') %>%
   mutate(prop = n/N, percent = round(prop*100, 0)) %>%
-  mutate(esi_abbr = case_when( # create abbreviated field labels
+  mutate(esi_abbr = case_when( # create abbreviated field labels to use in figures
     esi_field == "OVERALL" ~ "OVERALL",
     esi_field == "AGRICULTURAL SCIENCES" ~ "AGRI",
     esi_field == "BIOLOGY & BIOCHEMISTRY" ~ "BIO",       
@@ -157,13 +205,13 @@ null_fields <- sum_tab %>%
   ) %>%
   pull(esi_field)
 
-# select only data on general any/internal/external statistical guidance classifications 
+# select only variables that address the general any/internal/external statistical guidance classifications 
 sum_tab_general <- sum_tab %>%
   filter(variable %in% c('guidance', 'internal_guidance', 'internal_guidance_section', 'external_guidance')) %>% # select only data on general classifications
   mutate(variable = factor(variable, levels = c('guidance', 'internal_guidance', 'internal_guidance_section', 'external_guidance')),
          var_display = factor(var_display, levels = c("Provides any statistical guidance", "Provides journal-specific statistical guidance", "Has a dedicated statistical guidance section", "Refers to external statistical guidance"))) # set variable order
 
-# select only data on topics
+# select only variables on specific topics
 sum_tab_topics <- sum_tab %>%
   filter(esi_field %notin% null_fields) %>% # remove fields that have no statistical guidance at all
   filter(variable %notin% c('guidance', 'internal_guidance', 'internal_guidance_section', 'external_guidance', 'publisher_guidance')) %>% # select only data on topics
@@ -180,23 +228,28 @@ sum_tab_topics <- sum_tab_topics %>%
   mutate(topic_display = factor(topic_display, levels = ordered_topics))
 ```
 
-Figure \@ref(fig:statguidefig) shows the percentage of journals in each scientific discipline (denominator is N = 15) and overall (denominator is N = 330) that (a) offered any statistical guidance; (b) had a dedicated statistical guidance section. For tabular data, see Appendix \@ref(app).
+Figure \@ref(fig:statguidefig) shows the percentage of journals in each scientific discipline (denominator is N = 15) and overall (denominator is N = 330) that: 
+
+(a) offered any statistical guidance; 
+(b) had a dedicated statistical guidance section. 
+
+For tabular data, see the table in the Appendix.
 
 ```{r crosstab_int_ext}
 crosstab_int_ext <- d_all %>% count(has_internal_guidance, has_external_guidance)
 only_ext <- crosstab_int_ext %>% filter(has_internal_guidance == F, has_external_guidance == T) %>% pull(n)
 ```
 
-You can see that around half (`r sum_tab %>% filter(esi_field == "OVERALL", variable == "guidance") %>% pull(percent)`%) of journals offered any statistical guidance. Note that this includes `r only_ext` journals which only referred to statistical guidance in external sources (reporting guidelines or academic papers). Just over quarter of journals had a dedicated statistical guidance section of their author instructions (`r sum_tab %>% filter(esi_field == "OVERALL", variable == "internal_guidance_section") %>% pull(percent)`%). In two fields (Computer Science and Maths), no journals offered any statistical guidance. Journals in health-related fields were more likely to offer statistical guidance and have dedicated statistical guidance sections. Notably, 100% of the journals in clinical medicine offered some statistical guidance. 
+You can see that around half (`r sum_tab %>% filter(esi_field == "OVERALL", variable == "guidance") %>% pull(percent)`%) of journals offered any statistical guidance. Note that this includes `r only_ext` journals which only referred to statistical guidance in external sources (reporting guidelines or academic papers). Just over quarter of journals had a dedicated statistical guidance section in their author instructions (`r sum_tab %>% filter(esi_field == "OVERALL", variable == "internal_guidance_section") %>% pull(percent)`%). In two fields (Computer Science and Maths), no journals offered any statistical guidance. Journals in health-related fields were more likely to offer statistical guidance and have dedicated statistical guidance sections. Notably, 100% of the journals in clinical medicine offered some statistical guidance. 
 
-<br>
-
-```{r statguidefig, fig.cap = "Percentage of journals offering statistical guidance by scientific discipline (N = 15; represented by coloured dots) and overall (N = 330; represented by black diamond). Graphs ordered from left to right and top to bottom in order of highest proportion overall across scientific disciplines.", fig.topcaption = TRUE, fig.width = 10, fig.height = 6}
+```{r}
 # extract overall data
 sum_tab_general_overall <- sum_tab_general %>%
   filter(variable %in% c('guidance', 'internal_guidance_section')) %>%
   filter(esi_field == "OVERALL")
+```
 
+```{r statguidefig, layout="l-page", fig.width = 10, fig.height = 6, fig.cap = "Percentage of journals offering statistical guidance by scientific discipline (N = 15; represented by coloured dots) and overall (N = 330; represented by black diamond)."}
 sum_tab_general %>%
   filter(esi_field != "OVERALL") %>%
   filter(variable %in% c('guidance', 'internal_guidance_section')) %>%
@@ -231,14 +284,12 @@ sum_tab_general %>%
   guides(colour = guide_legend(nrow = 8, title.position = 'top', title = '')) +
   guides(fill = guide_legend(nrow = 1, title.position = 'top', title = "Scientific disciplines"))
 ```
+Figure \@ref(fig:stattopicsfig) shows the percentage of journals in each scientific discipline (denominator is N = 15) and overall (denominator is N = 330) that mentioned each of the twenty statistical topics we pre-selected. For tabular data, see the table in the Appendix. Please see the issues section at the end of this document for an important note regarding the topic "prespecification of analyses".
 
-<br><br>
+You can see that some topics (e.g., confidence intervals, p-values) are much more likely to be mentioned than other topics (e.g., handling outliers, categorisation of continuous data). Journals in health-related fields, particularly clinical medicine, are often more likely to mention this collection of topics than journals in other fields.
 
-Figure \@ref(fig:stattopicsfig) shows the percentage of journals in each scientific discipline (denominator is N = 15) and overall (denominator is N = 330) that mentioned each of the twenty pre-specified statistical topics. For tabular data, see the Appendix (Section \@ref(app)). Please see Section \@ref(issues) (issues) at the end of this document for an important note regarding the topic "prespecification of analyses".
 
-<br>
-
-```{r stattopicsfig, fig.cap = "Percentage of journals offering guidance on twenty statistical topics by scientific discipline (N = 15; represented by coloured dots) and overall (N = 330; represented by black diamond). For presentational purposes, disciplines offering no guidance on individual topics are shown, but not labelled. Two scientific disciplines in which no journals offered any statistical guidance at all are not shown. Graphs ordered from left to right and top to bottom in order of highest proportion overall across scientific disciplines.", fig.topcaption = TRUE, fig.width = 10, fig.height = 28}
+```{r stattopicsfig, layout="l-page", fig.width = 10, fig.height = 28, fig.cap = "Percentage of journals offering guidance on twenty statistical topics by scientific discipline (N = 15; represented by coloured dots) and overall (N = 330; represented by black diamond). For presentational purposes, two scientific disciplines in which no journals offered any statistical guidance at all are not shown. Additionally, disciplines offering no guidance on individual topics are shown, but not labelled. Graphs are ordered from left to right and top to bottom in order of highest proportion offering topic guidance overall across scientific disciplines."}
 # extract overall data
 sum_tab_topics_overall <- sum_tab_topics %>%
   filter(esi_field == "OVERALL")
@@ -277,9 +328,7 @@ sum_tab_topics %>%
   guides(fill = guide_legend(order = -1, nrow = 1, title.position = 'top', title = "Scientific disciplines"))
 ```
 
-<br>
 
-You can see that some topics (e.g., confidence intervals, p-values) are much more likely to be mentioned than other topics (e.g., handling outliers, categorisation of continuus data). Journals in health-related fields, particularly clinical medicine, are often more likely to mention these topics than journals in other fields.
 
 ```{r how_much_guidance}
 n_topics <- d_all %>% filter(has_guidance == T, has_internal_guidance == T) %>%
@@ -294,26 +343,17 @@ n_topics <- d_all %>% filter(has_guidance == T, has_internal_guidance == T) %>%
   summarise(topics_mentioned = sum(value))
 ```
 
-<br>
-
 For the `r d_all %>% filter(has_guidance == T, has_internal_guidance == T) %>% nrow()` journals that offered some internal guidance (i.e., excluding those that offered no guidance at all and those that only referred to external sources), the histogram in Figure \@ref(fig:topicshist) illustrates that the maximum number of topics mentioned by an individual journal was `r max(n_topics$topics_mentioned)`. There were `r n_topics %>% filter(topics_mentioned == 0) %>% nrow()` journals that did not mention any of our prespecified topics (but provided statistical guidance on other topics). The median topics mentioned was `r median(n_topics$topics_mentioned)`.
-
-<br>
 
 ```{r topicshist, fig.cap = 'Histogram showing how many of the twenty statistical topics were mentioned by each journal'}
 n_topics %>%
   ggplot(aes(x=topics_mentioned)) +
   geom_histogram()
 ```
-
-<br>
-
-In the grid below (Figure \@ref(fig:guidancemosaic)), you can see which of the twenty topics were mentioned by each journal. Journals that shared publisher guidance are represented by one row (per publisher). Journals that did not offer any statistical guidance at all, or journals that referred only to guidance in external sources, are not shown.
-
-<br>
+In the grid below (Figure \@ref(fig:guidancemosaic)), you can see which of the twenty preselected topics were mentioned by each journal. Journals that shared publisher guidance are represented by one row (per publisher). Journals that did not offer any statistical guidance at all, or journals that referred only to guidance in external sources, are not shown.
 
 ```{r}
-my_palette <- c("#56B4E9", "#E69F00")
+my_palette <- c("#95D840FF", "#404788FF")
 
 d_internal_guidance_noPublisher <-
   d_all %>%
@@ -385,6 +425,7 @@ plt <- d_internal_guidance %>%
     topic == "cat_continuous" ~ "categorisation of continuous data",
     topic == "publisher_guidance" ~ "Shares publisher guidance"
   )) %>%
+  mutate(topic_display = factor(topic_display, levels = ordered_topics)) %>% # order topics by n topics mentioned
   ggplot(aes(x = topic_display, y = journal)) +
     geom_tile(aes(fill = outcome), colour = 'black', size = .25, alpha = .6) +
     scale_fill_manual(
@@ -412,7 +453,7 @@ plt <- d_internal_guidance %>%
 # ggsave('internal-guidance.png', width = 11, height = 10)
 ```
 
-```{r guidancemosaic, fig.cap = "Grid diagram showing whether each journal provdied guidance on each of twenty prespecified statistical topics", fig.height = 35, fig.width = 10}
+```{r guidancemosaic, layout="l-page", fig.cap = "Grid diagram showing whether each journal provided guidance on each of twenty preselected statistical topics. Topics are ordered from most (left) to least (right) mentioned. Journals are ordered from most (top) to least (bottom) preselected topics mentioned.", fig.height = 35, fig.width = 10}
 plt
 ```
 
@@ -462,102 +503,132 @@ guidance_examples_tbl <- d_all %>%
   select(topic = topic_display,"example guidance" =verbatim)
 ```
 
-To give you a flavour of the kind of guidance provided, I have randomly selected two examples (excluding a few very long examples), for each of the twenty statistical topics, and displayed them in Table \@ref(fig:guidanceexamples) below.
+To give you a flavour of the kind of guidance provided, I have randomly selected two examples (excluding a few very long examples), for each of the twenty statistical topics, and displayed them in Table \@ref(tab:guidanceexamples) below.
 
 ```{r guidanceexamples}
-guidance_examples_tbl %>% kable()
+guidance_examples_tbl %>% kable(caption = "Randomly selected verbatim statistical guidance for each of 20 preselected statistical topics.")
+```
+
+`r d_all %>% filter(has_external_guidance == T) %>% nrow()` journals referred authors to statistical guidance in an external source (reporting guidelines or other sources like academic papers or websites). Of these, `r crosstab_int_ext %>% filter(has_external_guidance == T, has_internal_guidance == F) %>% pull(n)` only referred to statistical guidance in external sources, whereas the other `r crosstab_int_ext %>% filter(has_external_guidance == T, has_internal_guidance == T) %>% pull(n)` also provided their own guidance in additional to referring to external sources.
+
+In the histogram (Figure \@ref(fig:repguidehist)) below, you can see how frequently journals referred to different reporting guidelines. Then in Table \@ref(tab:tbl-external-other-guidance) you can see all of the other external guidelines (academic papers and websites) that journals referred to. None of these external sources that have been examined by us in detail.
+
+```{r repguidehist, layout="l-page", fig.width = 10, fig.cap = 'Histogram showing how frequently journals referred to different reporting guidelines.'}
+ext_guide_ordered <- lookup_external_guidance %>% arrange(desc(n_journals)) %>% pull(external_guidance)
+lookup_external_guidance %>%
+  filter(guidance_type == "reporting guideline") %>%
+  mutate(external_guidance = factor(str_to_upper(external_guidance), levels = str_to_upper(ext_guide_ordered)),
+         external_guidance = fct_recode(external_guidance, 
+                                        `CONSORT PRO` = "CONSORT PRO EXTENSION",
+                                        `CONSORT Cluster` = "CONSORT EXTENDED GUIDELINES",
+                                        `HuGENet` = "HUMAN GENOME EPIDEMIOLOGY NETWORK (HUGENET) GUIDELINES",
+                                        `FDA Diagnostic Tests` = "FDA GUIDELINES (HTTPS://PERMA.CC/W2EY-MSTA)",
+                                        `CONSORT abstract` = "CONSORT ABSTRACT EXTENSION",
+         NIH = "NIH PRINCIPLES AND GUIDELINES FOR REPORTING PRECLINICAL RESEARCH",
+         NLM = "NLM RESEARCH REPORTING GUIDELINES AND INITIATIVES (HTTPS://WWW.NLM.NIH.GOV/SERVICES/RESEARCH_REPORT_GUIDE.HTML)")) %>%
+  filter(guidance_type == "reporting guideline") %>%
+  ggplot(aes(x=external_guidance, y = n_journals)) +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ylim(0,100) +
+  ylab('number of journals') +
+  xlab('reporting guideline')
+```
+Other external sources (not reporting guidelines):
+
+```{r tbl-external-other-guidance}
+lookup_external_guidance %>%
+  filter(guidance_type != "reporting guideline") %>%
+  select(-guidance_type) %>%
+  kable(caption = "Frequency of other external sources of statistical guidance (not reporting guidelines)")
+```
+
+## Study Two
+
+Study two involved a closer look at five preselected statistical topics. Table \@ref(tab:s2table) shows how many journals offerred different levels of endorsement for these statistical methods. You can see that it was fairly rare to oppose the use of any of these methods. A few journals are taking a stand against the use of "statistical significance", but this is rare. Few journals are strongly advocating the use of p-values, but the vast majority find them acceptable. It was quite common to recommend reporting of effect sizes and confidence intervals.
+
+```{r}
+d_s2 <- read_csv(here('data','primary','data_phase_two.csv'))
+```
+
+```{r s2table}
+d_s2 %>% select(journal, esi_field, p_use, stat_sig_use, conf_int_use, effect_size_use, sample_size_justification) %>%
+  pivot_longer(cols = p_use:sample_size_justification, names_to = "topic") %>%
+  filter(value != "No guidance") %>%
+  count(topic, value) %>%
+  mutate(value = fct_recode(value, `Implicit opposition` = 'Implicit opposition (for low sample sizes)',
+         `Explicit opposition` = 'Explicit opposition (without prespecified multiplicity corrections)')) %>%
+  pivot_wider(id_cols = topic, names_from = value, values_from = n) %>%
+  mutate(across(everything(), .fns = ~replace_na(.,0))) %>% 
+  mutate(topic = fct_recode(topic,
+                            `confidence intervals` = "conf_int_use",
+                            `effect sizes` = "effect_size_use",
+                            `p-values` = "p_use",
+                            `sample size justification` = "sample_size_justification",
+                            `statistical significance` = "stat_sig_use")) %>%
+  kable(caption = "Number of journals offering degrees of endorsement for five specific statistical methods")
 ```
 
 
-Look at external guidance
+Note that the one journal with implicit opposition to confidence intervals said this was only in the case of small sample sizes. And the one journal with explicit opposition to p-values said this was only when there were no pre-specified multiplicity corrections.
 
-```{r tbl_external_guidance}
-lookup_external_guidance %>% 
-  knitr::kable()
-```
+Of the `r d_s2 %>% filter(!is.na(p_value)) %>% nrow()` journals offering guidance on p-values, `r d_s2 %>% filter(!is.na(p_value)) %>% count(p_reporting) %>% filter(p_reporting == "Exact") %>% pull(n)` advised reporting of exact p-values, `r d_s2 %>% filter(!is.na(p_value)) %>% count(p_reporting) %>% filter(p_reporting == "Exact unless very small") %>% pull(n)` advised reporting of exact p-values unless they were very small (e.g., < .001), `r d_s2 %>% filter(!is.na(p_value)) %>% count(p_reporting) %>% filter(p_reporting == "Thresholds [0.05, 0.01, 0.001]") %>% pull(n)` advised to use reporting thresholds (e.g., <.05, <.01, <.001), and `r d_s2 %>% filter(!is.na(p_value)) %>% count(p_reporting) %>% filter(p_reporting == "No guidance") %>% pull(n)` offered no guidance on how to report p-values.
 
-External guidance types
+Of the `r d_s2 %>% filter(!is.na(significance)) %>% nrow()` journals offering guidance on statistical significance, `r d_s2 %>% filter(!is.na(significance)) %>% count(stat_sig_reporting) %>% filter(stat_sig_reporting == "Report alpha") %>% pull(n)` advised authors report the alpha level they used, `r d_s2 %>% filter(!is.na(significance)) %>% count(stat_sig_reporting) %>% filter(stat_sig_reporting == "0.05") %>% pull(n)` advised using an alpha level of .05, `r d_s2 %>% filter(!is.na(significance)) %>% count(stat_sig_reporting) %>% filter(stat_sig_reporting == "0.01") %>% pull(n)` advised using an alpha level of .01, and `r d_s2 %>% filter(!is.na(significance)) %>% count(stat_sig_reporting) %>% filter(stat_sig_reporting == "No guidance") %>% pull(n)` offered no guidance on reporting statistical significance.
 
-```{r tbl_external_guidance_types}
-lookup_external_guidance %>% 
-  count(guidance_type) %>% 
-  kable()
-```
+Of the `r d_s2 %>% filter(!is.na(conf_int)) %>% nrow()` journals offering guidance on confidence intervals, `r d_s2 %>% filter(!is.na(conf_int)) %>% count(conf_int_reporting) %>% filter(conf_int_reporting == "Report 95% Cis") %>% pull(n)` advised authors to report 95% confidence intervals, `r d_s2 %>% filter(!is.na(conf_int)) %>% count(conf_int_reporting) %>% filter(conf_int_reporting == "Report confidence level") %>% pull(n)` advised authors report their chosen confidence level, and `r d_s2 %>% filter(!is.na(conf_int)) %>% count(conf_int_reporting) %>% filter(conf_int_reporting == "No guidance") %>% pull(n)` offered no guidance on reporting confidence intervals.
 
 # Issues to address {#issues}
 
-* Our coding for the topic "prespecification of analyses" was not consistent across coders. Specifically, some coders considered guidance/instructions related to registration of clinical trials to be covered by this topic, whilst others did not. I believe the justification of those who did not was that clinical trials registration does not necessarily involve prespecification of a statistical analysis plan. That seems a reasonable justification to me, but I'd be interested to hear thoughts from the team. If we decide that advice about clinical trials registration alone does not fall into the remit of this topic, then it is relatively straightforward to examine the verbatim text we extracted and re-code the relevant cases. However, if we decide that advice about clinical trials registration *does* fall under the remit of this topic, then we will need to re-visit the journal instructions to authors and search for such guidance (as this was not done consistently previously).
+* In two fields (Computer Science and Maths), no journals offered any statistical guidance - I do not know these fields well, but I wonder if this indicates that statistical tools are rarely used, in which case one might reasonably suggest we should not even have bothered to examine these fields. Any thoughts on this?
 
-* We have recorded whether journals refer to statistical guidance from external sources, such as reporting guidelines or academic papers. However, we have not examined those external sources, and we need to decide whether to do so. If we perform extraction and coding for all `r lookup_external_guidance %>% nrow()` external sources we have identified, this is clearly a lot of extra work. We also perhaps only really interested in the most salient statistical guidance offered by journals. On the other hand, if we do not extract information from external sources, then perhaps we are missing an important aspect of statistical guidance i.e., that journals may not provide their own guidance on certain topics because they are aptly covered by external sources. An additional complication is that in some cases, the boundary of internal vs external guidance is blurred when the 'external' source is an academic article that appears to have been written by members of the journal's editorial team. 
+* Our coding for the topic "prespecification of analyses" was not consistent across coders. Specifically, some coders considered that this topic also covered any guidance/instructions related to registration of clinical trials, whilst others did not. I believe the justification of those who did not was that clinical trials registration does not necessarily involve prespecification of a statistical analysis plan. That seems a reasonable justification to me, but I'd be interested to hear thoughts from the team. If we decide that advice about clinical trials registration alone does not fall into the remit of this topic, then it is relatively straightforward to examine the verbatim text we extracted and re-code the relevant cases. However, if we decide that advice about clinical trials registration *does* fall under the remit of this topic, then we will need to re-visit the journal instructions to authors and search for such guidance (as this was not done consistently previously).
+
+* We have recorded whether journals refer to statistical guidance from external sources, such as reporting guidelines or academic papers. However, we have not examined those external sources, and we need to decide whether to do so. If we perform extraction and coding for all `r lookup_external_guidance %>% nrow()` external sources we have identified, this is clearly a lot of extra work. A counter-argument is that we are only really interested in the most salient statistical guidance offered directly by journals. On the other hand, if we do not extract information from external sources, then perhaps we are missing an important aspect of statistical guidance i.e., that journals may not provide their own guidance on certain topics because they are aptly covered by external sources. An additional complication is that in some cases, the boundary of internal vs external guidance is blurred when the 'external' source is an academic article that appears to have been written by members of the journal's editorial team. 
+
+* In the protocol we say that for Study 2, data extraction and coding will be in duplicate. However, we do caveat this by saying it might be necessary to deviate from the plan depending on our resources. I have done all of the first coding, do we have the capacity to do duplicate coding? My worry is that it will slow us down considerably, and I am keen to get these results published before they are outdated (the statistical guidance was originally extracted in November, 2019).
 
 # Appendix {#app}
 
-Tabular data (represented in Figures 1 and 2). There is a scroll bar at the bottom of the table to see all of the scientific fields.
+Tabular data (represented in Figures 1 and 2). Number and percentage of journals overall and by scientific field providing internal statistical guidance by topic (click the black arrow to scroll through the data for each field). The denominator for proportions is the number of journals in the field (N = 15) or overall (N = 330).
 
-```{r tbl_counts_props}
+```{r tbl-counts-props}
 sum_tab %>%
+  filter(variable != "publisher_guidance") %>%
   mutate(field = paste0(esi_field,' N = ',N),
          table_data = paste0(n,' (',percent,'%)')) %>%
   select(field,variable,table_data) %>%
   pivot_wider(id_cols = variable, names_from = field, values_from = table_data) %>%
   select(variable, `OVERALL N = 330`, everything()) %>%
-  kable(caption = "**Number and percentage of journals overall and by scientific discipline providing internal statistical guidance by topic.** Denominator for all proportions is the number of journals in the field, regardless of whether the journal has internal guidance.")
+  paged_table(options = list(rows.print = 25, cols.print = 5))
 ```
 
-```{r}
-#### CODE GRAVEYARD - BEWARE ####
 
-# try binning method
-# forPlot %>%
-#   #mutate(bin = cut_width(prop, width = 0.2, center = 0.1)) %>%
-#   mutate(bin = cut_width(percent, width = 20, center = 10)) %>%
-#   group_by(esi_field,bin) %>%
-#   summarise(n = n()) %>%
-#   group_by(bin) %>%
-#   summarise(esi_field = esi_field, pos = cumsum(n)) %>%
-#   merge(forPlot, by = "esi_field") %>% # rejoin columns from original dataframe
-#   ggplot(aes(x=percent, y = pos, colour = esi_field)) +
-#   geom_vline(xintercept = sum_tab %>% filter(variable == "guidance", esi_field == "OVERALL") %>% pull(percent)) +
-#   geom_point(size = 5) +
-#   geom_label_repel(aes(label = esi_abbr)) +
-#   theme_minimal() +
-#   theme(axis.title.y = element_blank(),
-#         axis.text.y = element_blank(),
-#         axis.ticks.y = element_blank()) +
-#   scale_colour_discrete()
-
-
-
-# # trying out a dot histogram
-# d <- sum_tab %>%
-#   #filter(variable %in% c('guidance', 'internal_guidance', 'internal_guidance_section', 'external_guidance')) %>%
-#   filter(variable %in% c('guidance'))
-# 
-# sum_tab %>%
-#   filter(variable %in% c('guidance', 'internal_guidance', 'internal_guidance_section', 'external_guidance')) %>%
-#   ggplot(aes(x = prop, fill=esi_field, label = esi_abbr, group = esi_field)) + 
-#     #geom_histogram(aes(fill=esi_field), binwidth=0.1, colour="grey20", lwd=0.2) +
-#     geom_dotplot(binwidth=0.1, colour="grey20", lwd=0.2, stackgroups = T, binpositions = 'all', method = 'histodot', dotsize = 0.25, stackdir = 'center') +
-#     facet_grid(rows = vars(variable)) +
-#     theme(axis.title.y = element_blank(), # y axis labels are meaningless on this plot, remove them
-#       axis.text.y = element_blank(),
-#       legend.position = 'bottom')
-# 
-#   # looks ok... but difficult to tell which field is which (too many similar colours, and have to keep looking at legend)
-#   # could we put the field abbreviation text inside the dots? (maybe shorten to two letters)
-#   # also for OVERALL we need something different, e.g., a black vertical line
-```
 
 ```{r phase_two}
-# export data for phase two
-d_all %>% filter(has_p_value == T | has_significance == T) %>% 
-  mutate(coder = "TEH") %>% 
-  select(journal, esi_field, p_value, significance) %>%
-  mutate(recommended_required = NA,
-         p_use = NA,
-         p_reporting = NA,
-         stat_sig_use = NA,
-         stat_sig_alpha = NA) %>%
-  write_csv(here('data','raw','templates','phase_two_pval.csv'))
+# p2_done <- read_csv(here('data','raw','phase_two_pval.csv'))
+# # export data for phase two
+# p2 <- d_all %>% filter(has_p_value == T | has_significance == T | has_effect_size == T | has_conf_int == T | has_sample_size == T) %>% 
+#   mutate(coder = "TEH") %>% 
+#   select(journal, esi_field, p_value, significance, conf_int, effect_size, sample_size) %>%
+#   mutate(conf_int_use = NA,
+#          effect_size_use = NA,
+#          effect_size_reporting = NA,
+#          sample_size_justification = NA,
+#          sample_size_power = NA) 
+# 
+# full_join(p2, p2_done, 
+#           by = c('journal','esi_field', 'p_value', 'significance')) %>%
+#   arrange(p_value, significance) %>%
+#   write_csv(here('data','raw','templates','phase_two.csv'))
+# 
+# tmp %>% filter(!is.na(significance))
+# d_all %>% filter(has_significance == T)
 ```
+
+
+
+
+
+
 

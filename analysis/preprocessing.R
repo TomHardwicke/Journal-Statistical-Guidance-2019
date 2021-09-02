@@ -2,9 +2,6 @@
 # load data from 'primary' folder
 # do any necessary munging
 # save processed data (in csv format and R format)
-library(tidyverse)
-library(assertr)
-library(janitor)
 
 # Load data
 d_coding <- read_csv(here::here("data", "primary", "data_coding.csv"))
@@ -420,15 +417,16 @@ lookup_external_guidance <-
   mutate(guidance_type = case_when(
     
     # Papers have doi (mostly)
-    str_detect(external_guidance, "10\\.\\d{4,9}/[-.;()/:\\w\\d]+$") ~ "paper",
-    str_detect(external_guidance, "statistics for biologists|ncbi.nlm.nih.gov/books/nbk153593|biostathandbook|biology_statistics_made_simple_using_excel") ~ "paper", #unsure
+    str_detect(external_guidance, "10\\.\\d{4,9}/[-.;()/:\\w\\d]+$") ~ "other",
+    str_detect(external_guidance, "statistics for biologists|ncbi.nlm.nih.gov/books/nbk153593|biostathandbook|biology_statistics_made_simple_using_excel") ~ "other", #unsure
     
     # Reporting guidelines are mostly a single word, possibly with a dash
     str_detect(external_guidance, "^[\\w-]+$") ~ "reporting guideline",
     str_detect(external_guidance, "consort|apa jars") ~ "reporting guideline",
     str_detect(external_guidance, "^nih|^nlm|^fda") ~ "reporting guideline",
-    str_detect(external_guidance, "biosharing|hugenet") ~ "reporting guideline", #unsure
-    str_detect(external_guidance, "apa|asa|cell star|frontiersin") ~ "publisher",
+    str_detect(external_guidance, "hugenet") ~ "reporting guideline", #unsure
+    str_detect(external_guidance, "cell star|frontiersin") ~ "publisher",
+    str_detect(external_guidance, "apa|asa") ~ "other",
     TRUE ~ NA_character_
   ))
 
@@ -436,7 +434,7 @@ lookup_external_guidance <-
 d_all <- inner_join(d_coding,d_journals, by = 'journal')
 
 readr::write_csv(d_all, file =  here::here("data", "processed", "d_all.csv"))
-save(d_coding, file =  here::here("data", "processed", "d_all.rds"))
+save(d_all, file =  here::here("data", "processed", "d_all.rds"))
 
 readr::write_csv(lookup_external_guidance, file =  here::here("data", "processed", "lookup_external_guidance.csv"))
 save(lookup_external_guidance, file =  here::here("data", "processed", "lookup_external_guidance.rds"))

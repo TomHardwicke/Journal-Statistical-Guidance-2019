@@ -2,6 +2,7 @@
 researchFiles/
 protocol/
 manuscript/
+analysis/old/
 
 # History files
 .Rhistory
