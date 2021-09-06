@@ -21,6 +21,7 @@ library(janitor) # for data munging
 library(tidylog) # inline code feedback
 library(here) # for finding files
 library(assertr) # for testing
+library(pointblank) # for testing
 library(lemon) # to have axes across all graph facets
 library(ggthemr) # for ggplot theme
 library(ggrepel) # for ggplot text labels
