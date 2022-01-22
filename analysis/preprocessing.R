@@ -273,7 +273,7 @@ cleaned_external_guidances <- tribble(
   "Statistical guidelines for contributors to medical journals (Altman et al. 1983)",
   
   "https://www.ncbi.nlm.nih.gov/books/NBK153593/ http://www.biostathandbook.com/ http://www.utdallas.edu/~serfling/3332/Biology_statistics_made_simple_using_Excel.pdf",
-  "https://www.ncbi.nlm.nih.gov/books/NBK153593/; http://www.biostathandbook.com/; http://www.utdallas.edu/~serfling/3332/Biology_statistics_made_simple_using_Excel.pdf",
+  "fay & gerow 2014 (https://www.ncbi.nlm.nih.gov/books/NBK153593/); mcdonald 2014. Handbook of Biological Statistics (http://www.biostathandbook.com/)",
   
   "NIH Preclinical CONSORT PRISMA STARD",
   "NIH Preclinical; CONSORT; PRISMA; STARD",
@@ -349,41 +349,42 @@ d_coding <-
     str_detect(external_guidance, "arrive guidelines") ~ "arrive",
     str_detect(external_guidance, "https://www.nlm.nih.gov/services/research_report_guide.html") ~ "nlm research reporting guidelines and initiatives (https://www.nlm.nih.gov/services/research_report_guide.html)",
     str_detect(external_guidance, "nih preclinical|^nih$") ~ "nih principles and guidelines for reporting preclinical research",
-    str_detect(external_guidance, "https://www.amstat.org/asa/your-career/ethical-guidelines-for-statistical-practice.aspx") ~ "asa (https://www.amstat.org/asa/your-career/ethical-guidelines-for-statistical-practice.aspx)",
+    str_detect(external_guidance, "https://www.amstat.org/asa/your-career/ethical-guidelines-for-statistical-practice.aspx") ~ "American Statistical Association Ethical Guidelines for Statistical Practice (https://www.amstat.org/asa/your-career/ethical-guidelines-for-statistical-practice.aspx)",
     
     # Publications
-    str_detect(external_guidance, "altman") ~ "altman et al. 1983 (10.1136/bmj.286.6376.1489)",
-    str_detect(external_guidance, "boushey harris bruemmer and archer 2008") ~ "boushey et al. 2008 (10.1016/j.jada.2008.01.002)",
-    str_detect(external_guidance, "boushey harris bruemmer archer and van horn 2006") ~ "boushey et al. 2006 (10.1016/j.jada.2005.11.007)",
-    str_detect(external_guidance, "bruemmer harris gleason et al 2009") ~ "bruemmer et al. 2009 (10.1016/j.jada.2009.07.011)",
-    str_detect(external_guidance, "cummings & rivara 2003|https://jamanetwork.com/journals/jamapediatrics/fullarticle/481292") ~ "cummings & rivara 2003 (10.1001/archpedi.157.4.321)",
-    str_detect(external_guidance, "error") ~ "cumming et al. 2007 (10.1083/jcb.200611141)",
-    str_detect(external_guidance, "gleason harris sheean boushey and bruemmer 2010") ~ "gleason et al. 2010 (10.1016/j.jada.2009.11.022)",
-    str_detect(external_guidance, "gleason boushey and zoellner 2015") ~ "gleason et al. 2015 (10.1016/j.jand.2015.03.011)",
-    str_detect(external_guidance, "harris and raynor 2017") ~ "harris & raynor 2017 (10.1016/j.jand.2017.03.017)",
-    str_detect(external_guidance, "harris boushey bruemmer archer 2008") ~ "harris et al. 2008 (10.1016/j.jada.2008.06.426)",
-    str_detect(external_guidance, "harris gleason sheean boushey beto bruemmer 2009") ~ "harris et al. 2009 (10.1016/j.jada.2008.10.018)",
-    str_detect(external_guidance, "harris sheean gleason bruemmer and boushey 2012") ~ "harris et al. 2012 (10.1016/j.jada.2011.09.037)",
-    str_detect(external_guidance, "hewitt 2012") ~ "hewitt 2012 (10.1007/s10519-011-9504-z)",
-    str_detect(external_guidance, "hollingshead 2008") ~ "hollingshead 2008 (10.1093/jnci/djn351)",
-    str_detect(external_guidance, "kempen 2011") ~ "kempen 2011 (10.1016/j.ajo.2010.08.047)",
-    str_detect(external_guidance, "http://jpet.aspetjournals.org/content/351/1/200") ~ "motulsky 2014 (10.1124/jpet.114.219170)",
-    str_detect(external_guidance, "olsen 2003") ~ "olsen 2003 (10.1128/iai.71.12.6689-6692.2003)",
-    str_detect(external_guidance, "olsen 2014") ~ "olsen 2014 (10.1128/iai.00811-13)",
-    str_detect(external_guidance, "fmri") ~ "poldrack et al. 2008 (10.1016/j.neuroimage.2007.11.048)",
-    str_detect(external_guidance, "richardson (and|&) overbaugh 2005") ~ "richardson & overbaugh 2005 (10.1128/jvi.79.2.669-676.2005)",
-    str_detect(external_guidance, "sheean bruemmer gleason harris boushey van horn 2011") ~ "sheean 2011 (10.1016/j.jada.2010.10.010)",
-    str_detect(external_guidance, "tumor") ~ "simon et al. 2009 (10.1093/jnci/djp335)",
-    str_detect(external_guidance, "https://www.ahajournals.org/doi/10.1161/jaha.116.004142") ~ "sullivan et al. 2016 (10.1161/jaha.116.004142)",
-    str_detect(external_guidance, "zoellner van horn gleason boushey 2015") ~ "zoellner et al. 2015 (10.1016/j.jand.2015.03.010)",
-    str_detect(external_guidance, "zoellner and harris 2017") ~ "zoellner & harris 2017 (10.1016/j.jand.2017.01.018)",
-    
-
-    str_detect(external_guidance, "ten simple rules for reproducible computational research") ~ "sandve et al. 2013 (10.1371/journal.pcbi.1003285)",
-    str_detect(external_guidance, "use of anova versus t-test") ~ "brady et al. 2015 (10.1105/tpc.15.00238)",
-    str_detect(external_guidance, "know when your numbers are significant") ~ "vaux 2012 (10.1038/492180a)",
-    str_detect(external_guidance, "dupuy & simon 2007") ~ "table 3 in dupuy & simon 2007 (10.1093/jnci/djk018)",
+    str_detect(external_guidance, "altman") ~ "Altman et al. 1983 (10.1136/bmj.286.6376.1489)",
+    str_detect(external_guidance, "boushey harris bruemmer and archer 2008") ~ "Boushey et al. 2008 (10.1016/j.jada.2008.01.002)",
+    str_detect(external_guidance, "boushey harris bruemmer archer and van horn 2006") ~ "Boushey et al. 2006 (10.1016/j.jada.2005.11.007)",
+    str_detect(external_guidance, "bruemmer harris gleason et al 2009") ~ "Bruemmer et al. 2009 (10.1016/j.jada.2009.07.011)",
+    str_detect(external_guidance, "cummings & rivara 2003|https://jamanetwork.com/journals/jamapediatrics/fullarticle/481292") ~ "Cummings & Rivara 2003 (10.1001/archpedi.157.4.321)",
+    str_detect(external_guidance, "error") ~ "Cumming et al. 2007 (10.1083/jcb.200611141)",
+    str_detect(external_guidance, "gleason harris sheean boushey and bruemmer 2010") ~ "Gleason et al. 2010 (10.1016/j.jada.2009.11.022)",
+    str_detect(external_guidance, "gleason boushey and zoellner 2015") ~ "Gleason et al. 2015 (10.1016/j.jand.2015.03.011)",
+    str_detect(external_guidance, "harris and raynor 2017") ~ "Harris & Raynor 2017 (10.1016/j.jand.2017.03.017)",
+    str_detect(external_guidance, "harris boushey bruemmer archer 2008") ~ "Harris et al. 2008 (10.1016/j.jada.2008.06.426)",
+    str_detect(external_guidance, "harris gleason sheean boushey beto bruemmer 2009") ~ "Harris et al. 2009 (10.1016/j.jada.2008.10.018)",
+    str_detect(external_guidance, "harris sheean gleason bruemmer and boushey 2012") ~ "Harris et al. 2012 (10.1016/j.jada.2011.09.037)",
+    str_detect(external_guidance, "hewitt 2012") ~ "Hewitt 2012 (10.1007/s10519-011-9504-z)",
+    str_detect(external_guidance, "hollingshead 2008") ~ "Hollingshead 2008 (10.1093/jnci/djn351)",
+    str_detect(external_guidance, "kempen 2011") ~ "Kempen 2011 (10.1016/j.ajo.2010.08.047)",
+    str_detect(external_guidance, "http://jpet.aspetjournals.org/content/351/1/200") ~ "Motulsky 2014 (10.1124/jpet.114.219170)",
+    str_detect(external_guidance, "olsen 2003") ~ "Olsen 2003 (10.1128/iai.71.12.6689-6692.2003)",
+    str_detect(external_guidance, "olsen 2014") ~ "Olsen 2014 (10.1128/iai.00811-13)",
+    str_detect(external_guidance, "fmri") ~ "Poldrack et al. 2008 (10.1016/j.neuroimage.2007.11.048)",
+    str_detect(external_guidance, "richardson (and|&) overbaugh 2005") ~ "Richardson & Overbaugh 2005 (10.1128/jvi.79.2.669-676.2005)",
+    str_detect(external_guidance, "sheean bruemmer gleason harris boushey van horn 2011") ~ "Sheean 2011 (10.1016/j.jada.2010.10.010)",
+    str_detect(external_guidance, "tumor") ~ "Simon et al. 2009 (10.1093/jnci/djp335)",
+    str_detect(external_guidance, "https://www.ahajournals.org/doi/10.1161/jaha.116.004142") ~ "Sullivan et al. 2016 (10.1161/jaha.116.004142)",
+    str_detect(external_guidance, "zoellner van horn gleason boushey 2015") ~ "Zoellner et al. 2015 (10.1016/j.jand.2015.03.010)",
+    str_detect(external_guidance, "zoellner and harris 2017") ~ "Zoellner & Harris 2017 (10.1016/j.jand.2017.01.018)",
+    str_detect(external_guidance, "ten simple rules for reproducible computational research") ~ "Sandve et al. 2013 (10.1371/journal.pcbi.1003285)",
+    str_detect(external_guidance, "use of anova versus t-test") ~ "Brady et al. 2015 (10.1105/tpc.15.00238)",
+    str_detect(external_guidance, "know when your numbers are significant") ~ "Vaux 2012 (10.1038/492180a)",
+    str_detect(external_guidance, "dupuy & simon 2007") ~ "Dupuy & Simon 2007 (10.1093/jnci/djk018)",
     str_detect(external_guidance, "how robust are your data") ~ "how robust are your data 2009 (10.1038/ncb0609-667a)",
+    str_detect(external_guidance, "apa manual") ~ "American Psychological Association Publication Manual",
+    str_detect(external_guidance, "fay & gerow 2014 (https://www.ncbi.nlm.nih.gov/books/NBK153593/)") ~ "Fay & Gerow 2014 (https://www.ncbi.nlm.nih.gov/books/NBK153593/)",
+    str_detect(external_guidance, "mcdonald 2014. Handbook of Biological Statistics (http://www.biostathandbook.com/)") ~ "McDonald 2014. Handbook of Biological Statistics (http://www.biostathandbook.com/)",
     
     TRUE ~ external_guidance
   )) %>% 
@@ -413,7 +414,7 @@ lookup_external_guidance <-
     
     # Papers have doi (mostly)
     str_detect(external_guidance, "10\\.\\d{4,9}/[-.;()/:\\w\\d]+$") ~ "other",
-    str_detect(external_guidance, "statistics for biologists|ncbi.nlm.nih.gov/books/nbk153593|biostathandbook|biology_statistics_made_simple_using_excel") ~ "other", #unsure
+    str_detect(external_guidance, "statistics for biologists|ncbi.nlm.nih.gov/books/nbk153593|biostathandbook|biology_statistics_made_simple_using_excel") ~ "other", 
     
     # Reporting guidelines are mostly a single word, possibly with a dash
     str_detect(external_guidance, "^[\\w-]+$") ~ "reporting guideline",
@@ -421,7 +422,7 @@ lookup_external_guidance <-
     str_detect(external_guidance, "^nih|^nlm|^fda") ~ "reporting guideline",
     str_detect(external_guidance, "hugenet") ~ "reporting guideline", #unsure
     str_detect(external_guidance, "cell star|frontiersin") ~ "publisher",
-    str_detect(external_guidance, "apa|asa") ~ "other",
+    str_detect(external_guidance, "American Psychological Association|American Statistical Association") ~ "other",
     TRUE ~ NA_character_
   )) %>%
   filter(external_guidance != "equator") # as per protocol - we do not count general references to EQUATOR guidelines, so remove
