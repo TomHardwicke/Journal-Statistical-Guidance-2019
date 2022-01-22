@@ -1,0 +1,18 @@
+*Data codebook*
+
+Project title: A cross-disciplinary assessment of statistical guidance offered to authors by influential scientific journals
+
+This codebook documents the dataset data_s1_tabular.csv
+
+Description: This dataset contains summary level data for Study One, specifically the number of journals overall (N = 330) and in each scientific domain (n = 15 per domain) for each measured variable including:
+
+Provides any statistical guidance
+External statistical guidance
+Provides journal-specific statistical guidance
+Dedicated statistical guidance section
+
+And the twenty prespecified statistical topics.
+
+The dataset is the equivalent tabular data for what is displayed in Figures 1-6 of the manuscript. There is one row per variable and one column per scientific domain (plus an overall column pertaining to all 330 journals across domains).
+
+Source: The original primary data (see data_coding.csv) was preprocessed/reformatted with R code (see manuscript.Rmd).

@@ -1,0 +1,25 @@
+Variable,OVERALL,AGRICULTURAL SCIENCES,BIOLOGY & BIOCHEMISTRY,CHEMISTRY,CLINICAL MEDICINE,COMPUTER SCIENCE,ECONOMICS & BUSINESS,ENGINEERING,ENVIRONMENT_ECOLOGY,GEOSCIENCES,IMMUNOLOGY,MATERIALS SCIENCE,MATHEMATICS,MICROBIOLOGY,MOLECULAR BIOLOGY & GENETICS,Multidisciplinary,NEUROSCIENCE & BEHAVIOR,PHARMACOLOGY & TOXICOLOGY,PHYSICS,PLANT & ANIMAL SCIENCE,PSYCHIATRY_PSYCHOLOGY,"SOCIAL SCIENCES, GENERAL",SPACE SCIENCE
+Provides any statistical guidance,160,5,13,4,15,0,2,1,8,1,14,8,0,9,12,9,11,11,5,11,13,6,2
+External statistical guidance,137,4,12,2,15,0,0,1,5,1,13,7,0,8,12,8,11,11,5,5,13,3,1
+Provides journal-specific statistical guidance,128,5,12,4,14,0,2,1,7,1,12,4,0,7,12,9,7,5,4,8,8,5,1
+Dedicated statistical guidance section,93,2,11,2,9,0,1,1,5,1,8,3,0,5,11,9,6,2,4,7,4,1,1
+p values,88,2,9,1,13,0,2,1,5,1,10,3,0,3,5,8,6,2,4,4,7,2,0
+statistical significance,53,2,4,1,7,0,2,0,2,0,4,0,0,2,7,5,4,2,0,2,6,3,0
+null hypotheses,33,0,6,1,0,0,0,1,1,1,3,3,0,2,4,3,2,0,4,1,1,0,0
+sample size justification,72,3,10,3,7,0,0,1,2,1,5,3,0,4,11,5,5,1,4,1,4,2,0
+confidence intervals,90,1,12,2,13,0,1,1,5,1,9,3,0,5,11,6,7,1,4,2,5,1,0
+effect sizes,66,0,8,1,11,0,1,1,3,1,7,3,0,2,4,6,6,0,4,2,5,1,0
+multiple comparisons,60,0,9,1,6,0,0,1,2,1,5,3,0,4,5,7,4,1,4,5,2,0,0
+subgroup analyses,30,0,2,1,9,0,0,0,0,0,6,0,0,1,7,0,2,0,0,0,2,0,0
+baseline covariates,9,0,0,0,5,0,0,0,0,0,2,0,0,0,0,0,1,0,0,0,1,0,0
+non-parametric tests,10,1,1,0,3,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0
+sensitivity analyses,11,0,0,0,5,0,1,0,1,0,2,0,0,0,0,0,1,0,0,0,1,0,0
+checking model assumptions,61,1,9,2,4,0,0,1,2,1,4,3,0,4,11,7,5,0,4,1,1,1,0
+data exclusions,64,1,10,2,5,0,1,1,1,1,4,3,0,3,10,6,4,2,4,1,4,1,0
+handling outliers,7,0,2,0,0,0,1,0,0,0,0,0,0,0,0,3,0,1,0,0,0,0,0
+handling missing data,18,1,1,0,6,0,1,0,1,0,1,0,0,0,0,3,1,0,0,0,1,2,0
+one-sided tests,51,0,8,1,6,0,0,1,1,1,3,3,0,2,4,7,4,0,4,1,4,1,0
+Bayesian statistics,39,0,7,1,2,0,0,1,1,1,3,3,0,2,4,6,3,0,4,1,0,0,0
+secondary outcomes,25,2,1,0,10,0,0,0,1,0,4,0,0,0,0,1,3,1,0,0,2,0,0
+prespecification of analyses,65,0,8,1,11,0,1,1,1,1,5,3,0,3,4,8,4,1,4,3,5,1,0
+categorisation of continuous data,2,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
