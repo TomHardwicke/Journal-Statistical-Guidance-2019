@@ -423,7 +423,8 @@ lookup_external_guidance <-
     str_detect(external_guidance, "cell star|frontiersin") ~ "publisher",
     str_detect(external_guidance, "apa|asa") ~ "other",
     TRUE ~ NA_character_
-  ))
+  )) %>%
+  filter(external_guidance != "equator") # as per protocol - we do not count general references to EQUATOR guidelines, so remove
 
 # bind d_coding and d_journals
 d_all <- inner_join(d_coding,d_journals, by = 'journal')
