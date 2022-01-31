@@ -1,10 +1,10 @@
 # folders to ignore
 researchFiles/
 protocol/
-manuscript/
 data/raw/
 analysis/old/
 dissemination/
+manuscript/figs/
 
 # History files
 .Rhistory

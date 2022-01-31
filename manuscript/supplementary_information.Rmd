@@ -1,0 +1,202 @@
+# Supplementary Information A. Protocol amendments.
+The study protocol (rationale, methods, and analysis plan) was pre-registered on November 23rd, 2019 (https://osf.io/cz9g3/). Supplementary Table A1 outlines amendments between the pre-registered protocol and final report.
+
+See manuscript for Supplementary Table A1.
+
+# Supplementary Information B. Preserving statistical guidance.
+We used three methods to preserve verbatim copies of statistical guidance we identified on journal webpages. During our initial examination of webpages in November, 2019, we firstly attempted to preserve webpages using the service perma.cc (https://perma.cc). Occasionally, when this tool failed, we made a PDF copy of the webpage which we stored on the OSF (https://osf.io/tzjc6/). Occasionally, we retroactively realized we needed to preserve a journal webpage, in which case we used the Internet Archive’s Wayback Machine service (https://web.archive.org/) to obtain a copy of the webpage as it existed in November, 2019. Links to the preserved documents are available in a data file on the OSF (https://osf.io/aj6wu/). All coding was performed using the copied information to avoid reproducibility problems if journals updated their websites during coding. 
+
+
+# Supplementary Information C. Study One additional figures.
+
+```{r stattopicsfig2, fig.path='figs/', fig.width = 8, fig.height = 10.5, fig.cap = "Percentage of journals offering guidance on specific statistical topics, topics seven to twelve (Panels A-F, ordered by frequency). Data is shown for all journals overall (N = 330 journals; black circles) and then in descending order by percentage for each scientific discipline (n = 15 journals; coloured circles). For discipline abbreviations see Figure 1. For equivalent tabular data see https://osf.io/pkjhf/"}
+wrap_plots(plot_list[7:12], ncol = 3) + plot_annotation(tag_levels = 'A') &
+  theme(plot.tag.position = c(0, 1),
+        plot.tag = element_text(size = 14, hjust = 0, vjust = 0))
+```
+
+```{r stattopicsfig3, fig.path='figs/', fig.width = 8, fig.height = 9, fig.cap = "Percentage of journals offering guidance on specific statistical topics, topics thirteen to sixteen (Panels A-D, ordered by frequency). Data is shown for all journals overall (N = 330 journals; black circles) and then in descending order by percentage for each scientific discipline (n = 15 journals; coloured circles). For discipline abbreviations see Figure 1. For equivalent tabular data see https://osf.io/pkjhf/"}
+wrap_plots(plot_list[13:16], ncol = 2) + plot_annotation(tag_levels = 'A') &
+  theme(plot.tag.position = c(0, 1),
+        plot.tag = element_text(size = 14, hjust = 0, vjust = 0))
+```
+
+```{r stattopicsfig4, fig.path='figs/', fig.width = 8, fig.height = 9, fig.cap = "Percentage of journals offering guidance on specific statistical topics, topics seventeen to twenty (Panels A-D, ordered by frequency). Data is shown for all journals overall (N = 330 journals; black circles) and then in descending order by percentage for each scientific discipline (n = 15 journals; coloured circles). CCV = categorizing continuous variables. For discipline abbreviations see Figure 1. For equivalent tabular data see https://osf.io/pkjhf/"}
+wrap_plots(plot_list[17:20], ncol = 2) + plot_annotation(tag_levels = 'A') &
+  theme(plot.tag.position = c(0, 1),
+        plot.tag = element_text(size = 14, hjust = 0, vjust = 0))
+```
+
+# Supplementary Information D: Additional data on twenty prespecified statistical topics.
+
+```{r topicsHist, fig.path='figs/', fig.cap = 'Number of journals providing guidance on twenty prespecified statistical topics.'}
+n_topics %>%
+  ggplot(aes(x=topics_mentioned)) +
+    geom_histogram() +
+    ylim(0,40) +
+    xlab('topics mentioned (n)') +
+    ylab('journals (n)') +
+    theme_apa() +
+    theme(
+      panel.grid.major.y = element_line()
+    )
+```
+
+```{r}
+my_palette <- c("#95D840FF", "#404788FF")
+
+d_internal_guidance_noPublisher <-
+  d_all %>%
+  filter(has_internal_guidance == T, # select journals with internal guidance
+         has_publisher_guidance == F | journal == "Scientific Data") # remove journals with shared publisher guidance except for Scientific Data (which shared guidance and its own guidance)
+
+# were going to represent journals with publisher guidance in a single row per publisher. 
+# select exemplar journals for each publisher
+publisher_nature <- d_all %>% filter(journal == "Nature") %>% mutate(journal = paste0("Nature journals"," (n=", publisher_nature_n,')'))
+publisher_cell <- d_all %>% filter(journal == "CELL") %>% mutate(journal = paste0("Cell journals"," (n=", publisher_cell_n,')'))
+publisher_frontiers <- d_all %>% filter(journal == "Frontiers in Microbiology") %>% mutate(journal = paste0("Frontiers journals"," (n=", publisher_frontiers_n,')'))
+
+# combine the journals with no publisher guidance with the publisher guidance rows
+d_internal_guidance <- bind_rows(d_internal_guidance_noPublisher, publisher_nature, publisher_cell, publisher_frontiers)
+
+# list of journals in order of most topics mentioned
+journals_topics_mentioned_ordered <- d_internal_guidance %>%
+  # Recode NAs to FALSE
+  mutate(across(
+    everything()
+    , ~replace_na(., FALSE) )) %>% 
+  mutate(journal = toupper(journal)) %>%
+  select(journal, starts_with("has_"), -c(has_guidance, has_internal_guidance, has_internal_guidance_section, has_external_guidance, has_publisher_guidance)) %>%
+  pivot_longer(cols = !journal, names_to = 'topic', values_to = 'value') %>%
+  group_by(journal) %>%
+  summarise(topics_mentioned = sum(value)) %>%
+  arrange(topics_mentioned) %>%
+  pull(journal)
+
+plt_data <- d_internal_guidance %>%
+  select(-has_guidance,-has_external_guidance,-has_internal_guidance,-has_internal_guidance_section,-has_publisher_guidance) %>%
+  filter(if_any(starts_with("has"), ~ .x == TRUE)) %>% # remove the nine journals that had no guidance on any of the 20 topics
+  mutate(journal = factor(toupper(journal)),
+         journal = factor(journal, levels = journals_topics_mentioned_ordered)) %>% # order journals by n topics mentioned
+  select(journal, starts_with("has_") & (!contains("guidance"))) %>%
+  mutate(journal = fct_recode(journal, # shorten particularly long journal names well know by abbreviation
+                              "PNAS" = "PROCEEDINGS OF THE NATIONAL ACADEMY OF SCIENCES OF THE UNITED STATES OF AMERICA",
+                              "JAMA" = "JAMA-JOURNAL OF THE AMERICAN MEDICAL ASSOCIATION",
+                              "THE BMJ" = "BMJ-BRITISH MEDICAL JOURNAL",
+                              "JOURNAL OF ALLERGY & CLINICAL IMMUNOLOGY" = "JOURNAL OF ALLERGY AND CLINICAL IMMUNOLOGY",
+                              "JOURNAL OF ALLERGY & CLINICAL IMMUNOLOGY-IN PRACTICE" = "JOURNAL OF ALLERGY AND CLINICAL IMMUNOLOGY-IN PRACTICE",
+                              "INTERNATIONAL JOURNAL OF BEHAVIORAL NUTRITION & PHYSICAL ACTIVITY" = "INTERNATIONAL JOURNAL OF BEHAVIORAL NUTRITION AND PHYSICAL ACTIVITY")) %>% 
+  pivot_longer(
+    -journal,
+    names_to = "topic",
+    names_prefix = 'has_',
+    values_to = "outcome",
+    values_drop_na = FALSE
+  ) %>%
+  mutate(outcome = case_when(
+    outcome ~ "Mentioned",
+    !outcome ~ "Not mentioned",
+    TRUE ~ "Not applicable (No internal guidance)"
+  )) %>%
+  mutate(topic_display = case_when( # create display versions of topic names
+    topic == "guidance" ~ "Provides any statistical guidance",
+    topic == "internal_guidance" ~ "Provides journal-specific statistical guidance",
+    topic == "internal_guidance_section" ~ "Dedicated statistical guidance section",
+    topic == "external_guidance" ~ "Refers to external statistical guidance",
+    topic == "p_value" ~ "p values",
+    topic == "significance" ~ "statistical significance",
+    topic == "null_hypo" ~ "null hypotheses",
+    topic == "sample_size" ~ "sample size",
+    topic == "conf_int" ~ "confidence intervals",
+    topic == "effect_size" ~ "effect sizes",
+    topic == "multi_compare" ~ "multiple comparisons",
+    topic == "subgroup" ~ "subgroup analyses",
+    topic == "baseline_covar" ~ "baseline covariates",
+    topic == "non_param" ~ "non-parametric tests",
+    topic == "sensitivity" ~ "sensitivity analyses",
+    topic == "model_assume" ~ "model assumptions",
+    topic == "exclusion" ~ "data exclusions",
+    topic == "outliers" ~ "outliers",
+    topic == "missing" ~ "missing data",
+    topic == "one_sided" ~ "one-tailed tests",
+    topic == "bayes" ~ "Bayesian statistics",
+    topic == "secondary" ~ "secondary outcomes",
+    topic == "prespecify" ~ "prespecify analyses",
+    topic == "cat_continuous" ~ "CCV",
+    topic == "publisher_guidance" ~ "Shares publisher guidance"
+  )) %>%
+  mutate(topic_display = factor(topic_display, levels = ordered_topics)) # order topics by n topics mentioned
+
+plt_one <- plt_data %>% filter(journal %in% levels(plt_data$journal)[44:86]) %>% # plot first half
+  ggplot(aes(x = topic_display, y = journal)) +
+    geom_tile(aes(fill = outcome), colour = 'black', size = .25, alpha = .6) +
+    scale_fill_manual(
+      values = my_palette,
+      # labels = c('Not mentioned', 'Unclear', 'Mentioned')
+    ) +
+    scale_x_discrete(position = 'top') +
+    scale_y_discrete(labels = wrap_format(40)) + # wrap text on y axis
+    theme(plot.margin = margin(0, 50, 0, 0),
+          axis.ticks = element_blank(),
+          axis.title.y = element_blank(),
+          axis.title.x = element_blank(),
+          axis.line = element_blank(),
+          panel.grid.major=element_line(colour=NA),
+          panel.grid.minor=element_line(colour=NA),
+          legend.position = 'top',
+          axis.text.x  = element_text(angle = 45, hjust = 0),
+          axis.text.y  = element_text(size = 8),
+          panel.background = element_blank())
+
+plt_two <- plt_data %>% filter(journal %in% levels(plt_data$journal)[1:43]) %>% # plot second half
+  ggplot(aes(x = topic_display, y = journal)) +
+    geom_tile(aes(fill = outcome), colour = 'black', size = .25, alpha = .6) +
+    scale_fill_manual(
+      values = my_palette,
+      # labels = c('Not mentioned', 'Unclear', 'Mentioned')
+    ) +
+    scale_x_discrete(position = 'top') +
+    scale_y_discrete(labels = wrap_format(40)) + # wrap text on y axis
+    theme(plot.margin = margin(0, 50, 0, 0),
+          axis.ticks = element_blank(),
+          axis.title.y = element_blank(),
+          axis.title.x = element_blank(),
+          axis.line = element_blank(),
+          panel.grid.major=element_line(colour=NA),
+          panel.grid.minor=element_line(colour=NA),
+          legend.position = 'top',
+          axis.text.x  = element_text(angle = 45, hjust = 0),
+          axis.text.y  = element_text(size = 8),
+          panel.background = element_blank())
+```
+
+```{r gridOne, fig.path='figs/', fig.cap = "Whether each journal provided guidance on each of twenty statistical topics. Journals that shared publisher guidance are represented by one row (per publisher). Journals that did not offer any statistical guidance at all, or journals that referred only to guidance in external sources, are not shown. CCV = categorizing continuous variables.", fig.height = 11, fig.width = 8}
+plt_one
+```
+
+```{r gridTwo, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2.", fig.height = 11, fig.width = 8}
+plt_two
+```
+
+# Supplementary Information E. External sources of statistical guidance.
+
+```{r}
+reporting_guidelines %>%
+  select(-guidance_type) %>%
+  kable(caption = "Number of journals referring to reporting guidelines.", booktabs = T, longtable = T)
+```
+
+```{r}
+lookup_external_guidance %>% 
+  filter(guidance_type != 'reporting guideline') %>%
+  select(-guidance_type) %>%
+  kable(caption = "Number of journals referring to other external statistical guidance.", booktabs = T, longtable = T) %>%
+  column_spec(1, width = "30em")
+```
+
+# Supplementary Information F. Journal Impact Factors stratified by scientific discipline.
+
+```{r}
+journalJIF  %>%
+  kable(caption = "Journal Impact Factors stratified by each of 22 scientific disciplines")
+```
