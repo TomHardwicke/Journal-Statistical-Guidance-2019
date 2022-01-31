@@ -1,0 +1,37 @@
+*Data codebook*
+
+Project title: Statistical guidance to authors at top-ranked scientific journals:
+A cross-disciplinary assessment
+
+This codebook documents the datasets data_all.csv and data_all.rds
+The contents of these two datasets is the same - we are sharing in two formats so users can choose whether to use the csv file or the rds file as they prefer.
+
+Description: This dataset contains preprocessed data for Study One data extraction/classification, information about journals included in the sample and the location of preserved statistical guidance. It consolidates primary data files data_coding.csv and data_journals.csv, but retains only the consensus coding (primary and secondary coding are not used in the analyses). There is therefore a single row for each of the 330 journals in the sample.
+
+Source: Consolidated, filtered, and preprocessed version of primary data files data_coding.csv and data_journals.csv via the script preprocessing.R
+
+Explanation of columns: 
+
+coder: initials of the two authors assigned to code this journal
+Journal: journal name
+
+has_guidance: whether the journal has (TRUE) or does not have (FALSE) any statistical guidance
+has_external_guidance: whether the journal refers to (TRUE) or does not refer to (FALSE) any statistical guidance in external sources	
+external_guidance_raw: the external sources we originally extracted	
+external_guidance_list: a cleaned up, homogenised version of external_guidance_raw		
+has_internal_guidance: whether the journal has (TRUE) or does not have (FALSE) its own internal statistical guidance (in addition to any external guidance)	
+has_internal_guidance_section: whether the journal has (TRUE) or does not have (FALSE) a dedicated statistical guidance section in its instructions to authors.
+
+The next 40 columns pertain to the 20 prespecified statistical topics that we examined. The columns with the prefix has_ state whether the journal's guidance mentioned (TRUE) or did not mention (FALSE) a particular topic e.g., has_p_value states whether the guidance mentioned p-values. The columns without the has_ prefix contain the verbatim extracted guidance on that particular topic.
+
+has_publisher_guidance: whether the journal does (TRUE) or does not (FALSE) share any publisher-level guidance	
+publisher_guidance: the publisher guidance that the journal shares, either Nature, Cell, or Frontiers (or NA if the journal does not share publisher-level guidance).
+
+overall_rank: The journal's overall rank, based on 2017 Journal Impact Factor
+field_rank: The journal's domain rank, based on 2017 Journal Impact Factor
+journal_impact_factor: Journal Impact Factor	 
+esi_field: The scientific domain assigned to the journal by Essential Science Indicators
+journalHomepage: The homepage of the journal's website
+originalLink_statGuidance: A link to statistical guidance we identified on the journal webpage. NA = no guidance was found
+permaLink_statGuidance: Link(s) to the preserved version of the journal webpage(s) / statistical guidance on perma.cc, web archive, or OSF. NA no guidance could be found.
+notes: notes from the triage team about where exact statistical guidance can be found in the preserved documents, or highlighting any issues.

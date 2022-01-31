@@ -1,0 +1,22 @@
+*Data codebook*
+
+Project title: Statistical guidance to authors at top-ranked scientific journals:
+A cross-disciplinary assessment
+
+This codebook documents the dataset data_journals.csv
+
+Description: This dataset contains information about journals included in the sample and the location of preserved statistical guidance.
+
+Source: 2017 Journal Impact Factors were obtained via Clarivate Journal Citation Reports (https://jcr.clarivate.com). Journal domain classifications were defined by Clarivate Essential Science Indicators (https://perma.cc/MD4V-A5X5). Links to journal webpages were identified via Google search.
+
+Explanation of columns: 
+
+Overall_Rank: The journal's overall rank, based on 2017 Journal Impact Factor
+Field_Rank: The journal's domain rank, based on 2017 Journal Impact Factor
+Full Journal Title: Journal name.	
+Journal Impact Factor: Journal Impact Factor	 
+ESI_field: The scientific domain assigned to the journal by Essential Science Indicators
+journalHomepage: The homepage of the journal's website
+originalLink_statGuidance: A link to statistical guidance we identified on the journal webpage. NA = no guidance was found
+permaLink_statGuidance: Link(s) to the preserved version of the journal webpage(s) / statistical guidance on perma.cc, web archive, or OSF. NA no guidance could be found.
+notes: notes from the triage team about where exact statistical guidance can be found in the preserved documents, or highlighting any issues.

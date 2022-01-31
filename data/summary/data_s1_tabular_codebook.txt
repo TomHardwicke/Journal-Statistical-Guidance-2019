@@ -1,6 +1,7 @@
 *Data codebook*
 
-Project title: A cross-disciplinary assessment of statistical guidance offered to authors by influential scientific journals
+Project title: Statistical guidance to authors at top-ranked scientific journals:
+A cross-disciplinary assessment
 
 This codebook documents the dataset data_s1_tabular.csv
 

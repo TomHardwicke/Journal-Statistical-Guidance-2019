@@ -1,0 +1,15 @@
+*Data codebook*
+
+Project title: Statistical guidance to authors at top-ranked scientific journals:
+A cross-disciplinary assessment
+
+This codebook documents the dataset data_coding.csv
+
+Description: This dataset contains primary data for Study One data extraction and classification ('coding') for all 330 journals. The column "Choose coder initials" identifies which author(s) were assigned as coders to each journal.
+
+
+For all 160 journals that had some statistical guidance, there are three rows per journal: The first row represents coding of the primary coder. The second row represents coding of the secondary coder. And the third row represents the consensus coding agreed upon by the primary and secondary coder. This third consensus row is what we use as the basis for our analyses - you can identify it by looking for pairs of initials in the 'Choose coder initials' column e.g., "MSH/TH". There are two additional journals (Small and SOIL BIOLOGY & BIOCHEMISTRY) that did not have statistical guidance, but also have three rows. This because our initial triage suggested they did not have any guidance but the subsequent coding found that they did not. Thus, 162 journals are represented by three rows each (162 x 3 = 486 rows). The other 168 journals that were found to have no statistical guidance during triage are represented by a single row only and have the initials "TB/TH" in the 'Choose coder initials' column. Finally, there were some publishers that appeared to share statistical guidance documents across their journals. These guidelines have the prefix "SHARED:" in the "Enter journal name:" column. STAR Methods, Nature Life Sciences Reporting Checklist, SHARED: Nature Editorial Checklist (https://osf.io/6345a/), Nature Lasing Reporting,  Nature Photovoltaic Reporting, and Frontiers, were all coded in duplicate, so are represented by three rows each. The three sets of shared Nature guidelines/checklists are also consolidated into a single row 'SHARED: Nature consolidated'. Finally, there's a special row 'SHARED: Scientific Data Consolidated' for the journal Scientific Data, which shared all of the Nature guidelines, but also had some idiosyncratic guidance as well.
+
+Source: Information was entered via a Google Form or directly into a Google Spreadsheet.
+
+Columns: Columns represent questions asked of coders via the Google Form during data extraction/classification and should be self-explanatory.

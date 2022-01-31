@@ -1,0 +1,30 @@
+*Data codebook*
+
+Project title: Statistical guidance to authors at top-ranked scientific journals:
+A cross-disciplinary assessment
+
+This codebook documents the dataset data_endorsements.csv
+
+Description: This dataset contains primary data for Study One endorsement classifications. There is one row for each journal that mentioned at least one of the six 'hot' statistical topics.
+
+Source: Information was directly into a Google Spreadsheet by TEH.
+
+Columns:
+
+Journal - the journal's name
+esi_field - the Essential Science Indicators domain assigned to the journal
+p_value - the verbatim guidance about p-values extracted by coders (as recorded in data_coding.csv)
+p_value_use - endorsement classification for this p-value guidance
+p_reporting - classification of guidance on p-value reporting
+significance - the verbatim guidance about statistical significance extracted by coders (as recorded in data_coding.csv)
+stat_sig_use - endorsement classification for this statistical significance guidance
+stat_sig_reporting - classification of guidance on statistical significance reporting
+conf_int - the verbatim guidance about confidence intervals extracted by coders (as recorded in data_coding.csv)
+conf_int_use - endorsement classification for this confidence intervals guidance
+conf_int_reporting - classification of guidance on confidence intervals reporting
+effect_size - the verbatim guidance about effect sizes extracted by coders (as recorded in data_coding.csv)
+effect_size_use - endorsement classification for this effect size guidance
+sample_size - the verbatim guidance about sample size justification extracted by coders (as recorded in data_coding.csv)
+sample_size_use - endorsement classification for this sample size justification guidance
+bayes - the verbatim guidance about Bayesian statistics extracted by coders (as recorded in data_coding.csv)
+bayes_use - endorsement classification for this Bayesian statistics guidance.

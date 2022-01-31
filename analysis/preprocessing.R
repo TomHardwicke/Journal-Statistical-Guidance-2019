@@ -427,6 +427,8 @@ lookup_external_guidance <-
   )) %>%
   filter(external_guidance != "equator") # as per protocol - we do not count general references to EQUATOR guidelines, so remove
 
+d_coding <- d_coding %>% select(-external_guidance_clean)
+
 # bind d_coding and d_journals
 d_all <- inner_join(d_coding,d_journals, by = 'journal')
 

@@ -1,0 +1,17 @@
+*Data codebook*
+
+Project title: Statistical guidance to authors at top-ranked scientific journals:
+A cross-disciplinary assessment
+
+This codebook documents the datasets lookup_external_guidance.csv and lookup_external_guidance.rds
+The contents of these two datasets is the same - we are sharing in two formats so users can choose whether to use the csv file or the rds file as they prefer.
+
+Description: This dataset contains frequency data for all external sources of statistical guidance identified in Study One. There is a row for each external source.
+
+Source: Generated from the primary data file data_coding.csv via the script preprocessing.R
+
+Explanation of columns: 
+
+external_guidance: name of the external source. Many of these names are acronyms for reporting guidelines, which can be identified on the EQUATOR website (https://www.equator-network.org)
+n_journals: the number of journals that referred to this external source	
+guidance_type: whether the external source is a reporting guideline or some other type of guidance
