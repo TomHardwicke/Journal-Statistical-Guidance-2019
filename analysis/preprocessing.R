@@ -6,6 +6,7 @@
 # Load data
 d_coding <- read_csv(here("data", "primary", "data_coding.csv"))
 d_journals <- read_csv(here("data", "primary", "data_journals.csv"))
+d_endorse <- read_csv(here('data','primary','data_endorsements.csv'))
 
 # Clean up column names
 d_journals <-
@@ -434,6 +435,9 @@ d_all <- inner_join(d_coding,d_journals, by = 'journal')
 
 write_csv(d_all, file =  here("data", "processed", "d_all.csv"))
 save(d_all, file =  here("data", "processed", "d_all.rds"))
+
+write_csv(d_endorse, file =  here("data", "processed", "d_endorse.csv"))
+save(d_endorse, file =  here("data", "processed", "d_endorse.rds"))
 
 write_csv(lookup_external_guidance, file =  here("data", "processed", "lookup_external_guidance.csv"))
 save(lookup_external_guidance, file =  here("data", "processed", "lookup_external_guidance.rds"))
