@@ -4,6 +4,7 @@ protocol/
 manuscript/
 data/raw/
 analysis/old/
+dissemination/
 
 # History files
 .Rhistory
