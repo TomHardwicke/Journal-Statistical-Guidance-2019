@@ -440,6 +440,11 @@ topic_order <- sum_tab_topics %>%
   pull(topic_display)
   
 plot_list <- map(topic_order, plotDomains) # create list of plots for the 20 statistical topics
+
+# to save individual plots for twitter
+# for(i in 1:20){
+#    ggsave(plot = plot_list[[i]], file = here('manuscript','figs','twitter',paste("topic",i,".png",sep="")), width = 6, height = 8, units = "in", dpi = 300)
+#  }
 ```
 
 ```{r stattopicsfig1, fig.path='figs/', fig.width = 8, fig.height = 10.5, fig.cap = "Percentage of journals offering guidance on six most commonly mentioned statistical topics (Panels A-F, ordered by frequency). Data is shown for all journals overall (N = 330 journals; black circles) and then in descending order by percentage for each scientific discipline (n = 15 journals; coloured circles). For discipline abbreviations see Figure 1."}
