@@ -17,26 +17,27 @@ spirit,9,reporting guideline
 tripod,9,reporting guideline
 brisq,8,reporting guideline
 squire,8,reporting guideline
+srqr,8,reporting guideline
 gather,7,reporting guideline
 sampl,6,reporting guideline
-srqr,6,reporting guideline
 agree,5,reporting guideline
 ispor,5,reporting guideline
 mibbi,5,reporting guideline
 trend,5,reporting guideline
 prisma-p,4,reporting guideline
 aapor,3,reporting guideline
-Cummings & Rivara 2003 (10.1001/archpedi.157.4.321),3,other
 orion,3,reporting guideline
 spirit-ai,3,reporting guideline
 apa jars,2,reporting guideline
 Cumming et al. 2007 (10.1083/jcb.200611141),2,other
+Cummings & Rivara 2003 (10.1001/archpedi.157.4.321),2,other
 grips,2,reporting guideline
 nlm research reporting guidelines and initiatives (https://www.nlm.nih.gov/services/research_report_guide.html),2,reporting guideline
 Olsen 2003 (10.1128/iai.71.12.6689-6692.2003),2,other
 Olsen 2014 (10.1128/iai.00811-13),2,other
 Richardson & Overbaugh 2005 (10.1128/jvi.79.2.669-676.2005),2,other
-spqr,2,reporting guideline
+"""reporting statistical information in medical journal articles"" cummings p",1,NA
+157(4):321-324. doi:10.1001/archpedi.157.4.321,1,other
 Altman et al. 1983 (10.1136/bmj.286.6376.1489),1,other
 American Psychological Association Publication Manual,1,other
 American Statistical Association Ethical Guidelines for Statistical Practice (https://www.amstat.org/asa/your-career/ethical-guidelines-for-statistical-practice.aspx),1,other
@@ -69,6 +70,7 @@ Motulsky 2014 (10.1124/jpet.114.219170),1,other
 Poldrack et al. 2008 (10.1016/j.neuroimage.2007.11.048),1,other
 qhes,1,reporting guideline
 record,1,reporting guideline
+rivara fp. reporting statistical information in medical journal articles. arch pediatr adolesc med. 2003,1,NA
 Sheean 2011 (10.1016/j.jada.2010.10.010),1,other
 Simon et al. 2009 (10.1093/jnci/djp335),1,other
 strenda,1,reporting guideline
