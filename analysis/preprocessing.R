@@ -224,8 +224,6 @@ d_coding <- bind_rows(d_coding,allPublishers_shared)
 # Check that there is one row per journal in d_coding
 d_coding <- d_coding %>% verify(nrow(.) == nrow(d_journals))
   
-
-
 # EXTERNAL GUIDANCE -------------------------------------------------------
 
 # Tidy external guidance
@@ -432,6 +430,23 @@ d_coding <- d_coding %>% select(-external_guidance_clean)
 
 # bind d_coding and d_journals
 d_all <- inner_join(d_coding,d_journals, by = 'journal')
+
+# add higher-level domain classifications
+d_all <- d_all %>%
+  mutate(domain = case_when(
+    esi_field %in% c('AGRICULTURAL SCIENCES','BIOLOGY & BIOCHEMISTRY','ENVIRONMENT_ECOLOGY','MICROBIOLOGY','MOLECULAR BIOLOGY & GENETICS','NEUROSCIENCE & BEHAVIOR','PLANT & ANIMAL SCIENCE') 
+    ~'Life sciences',
+    esi_field %in% c('CLINICAL MEDICINE','IMMUNOLOGY','PHARMACOLOGY & TOXICOLOGY') 
+    ~'Health sciences',
+    esi_field %in% c('CHEMISTRY','ENGINEERING','GEOSCIENCES','MATERIALS SCIENCE','SPACE SCIENCE') 
+    ~'Physical sciences',
+    esi_field %in% c('ECONOMICS & BUSINESS','PSYCHIATRY_PSYCHOLOGY','SOCIAL SCIENCES, GENERAL') 
+    ~'Social sciences',
+    esi_field %in% c('COMPUTER SCIENCE','MATHEMATICS','PHYSICS') 
+    ~'Formal sciences',
+    esi_field %in% c('Multidisciplinary')
+    ~'Multidisciplinary'
+  ))
 
 write_csv(d_all, file =  here("data", "processed", "d_all.csv"))
 save(d_all, file =  here("data", "processed", "d_all.rds"))
