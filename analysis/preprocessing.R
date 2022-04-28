@@ -438,11 +438,11 @@ d_all <- d_all %>%
     ~'Life sciences',
     esi_field %in% c('CLINICAL MEDICINE','IMMUNOLOGY','PHARMACOLOGY & TOXICOLOGY') 
     ~'Health sciences',
-    esi_field %in% c('CHEMISTRY','ENGINEERING','GEOSCIENCES','MATERIALS SCIENCE','SPACE SCIENCE') 
+    esi_field %in% c('CHEMISTRY','ENGINEERING','GEOSCIENCES','MATERIALS SCIENCE','SPACE SCIENCE','PHYSICS') 
     ~'Physical sciences',
     esi_field %in% c('ECONOMICS & BUSINESS','PSYCHIATRY_PSYCHOLOGY','SOCIAL SCIENCES, GENERAL') 
     ~'Social sciences',
-    esi_field %in% c('COMPUTER SCIENCE','MATHEMATICS','PHYSICS') 
+    esi_field %in% c('COMPUTER SCIENCE','MATHEMATICS') 
     ~'Formal sciences',
     esi_field %in% c('Multidisciplinary')
     ~'Multidisciplinary'
