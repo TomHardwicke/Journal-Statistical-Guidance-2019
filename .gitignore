@@ -4,7 +4,7 @@ protocol/
 data/raw/
 analysis/old/
 dissemination/
-manuscript/figs/
+manuscript/figs
 
 # History files
 .Rhistory
@@ -46,3 +46,8 @@ rsconnect/
 .gitattributes
 PROJECT_journalStatsGuidance.Rproj
 analysis/preliminaryAnalysis.html
+
+# temporary manuscript files
+*.tex
+*.log
+manuscript/manuscript.pdf
