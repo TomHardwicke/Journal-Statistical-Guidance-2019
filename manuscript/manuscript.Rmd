@@ -195,8 +195,7 @@ sum_tab <- d_all %>%
   
   # Recode NAs to FALSE
   mutate(across(
-    everything()
-    , ~replace_na(., FALSE) )) %>% 
+    starts_with('has_'), ~replace_na(., FALSE) )) %>% 
   select(esi_field, starts_with("has_")) %>% 
   group_by(esi_field) %>%
   summarise(across(starts_with("has_"), list(n = sum, N = ~n()), .names = "{col}__{fn}")) %>%
@@ -373,7 +372,7 @@ plot_any_dedicated_joint <- sum_tab_general %>%
 
 ```{r how_much_guidance}
 n_topics <- d_all %>% filter(has_guidance == T, has_internal_guidance == T) %>%
-  mutate(across(everything(), ~replace_na(., FALSE) )) %>% # Recode NAs to FALSE
+  mutate(across(starts_with('has_'), ~replace_na(., FALSE) )) %>% # Recode NAs to FALSE
   select(journal, starts_with("has_"), -c(has_guidance, has_internal_guidance, has_internal_guidance_section, has_external_guidance, has_publisher_guidance)) %>%
   pivot_longer(cols = !journal, names_to = 'topic', values_to = 'value') %>%
   group_by(journal) %>%
@@ -591,4 +590,13 @@ Xie, Y. (2017). Dynamic documents with R and knitr. CRC Press.
 \endgroup
 
 
+
+
+
+\newpage
+
+# (APPENDIX) Appendix {-}
+
+```{r child = "supplementary_information.Rmd"}
+```
 

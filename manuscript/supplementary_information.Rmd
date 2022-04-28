@@ -63,8 +63,7 @@ d_internal_guidance <- bind_rows(d_internal_guidance_noPublisher, publisher_natu
 journals_topics_mentioned_ordered <- d_internal_guidance %>%
   # Recode NAs to FALSE
   mutate(across(
-    everything()
-    , ~replace_na(., FALSE) )) %>% 
+    starts_with('has_'), ~replace_na(., FALSE) )) %>% 
   mutate(journal = toupper(journal)) %>%
   select(journal, starts_with("has_"), -c(has_guidance, has_internal_guidance, has_internal_guidance_section, has_external_guidance, has_publisher_guidance)) %>%
   pivot_longer(cols = !journal, names_to = 'topic', values_to = 'value') %>%
