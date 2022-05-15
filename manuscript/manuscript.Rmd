@@ -69,6 +69,7 @@ library(janitor) # for data munging
 library(here) # for finding files
 library(assertr) # for testing
 library(scales) # to colour palette
+library(ggforce) # helpful plotting functions
 library(patchwork) # for multipanel figures
 library(kableExtra) # for latex tables
 ```
@@ -97,10 +98,19 @@ load(here('data','processed','d_endorse.rds'))
 
 ```{r set_defaults}
 # define a custom colour palette that links specific colours to specific scientific disciplines across graphs
+
+scale_fill_disciplines <- function(...){
+    ggplot2:::manual_scale(
+        'fill',
+        values = setNames(c(hue_pal()(22),'#000000'), c(levels(factor(sum_tab_topics$esi_abbr[! sum_tab_topics$esi_abbr == 'OVERALL'])), 'OVERALL')),
+        ...
+    )
+}
+
 scale_fill_domains <- function(...){
     ggplot2:::manual_scale(
         'fill', 
-        values = setNames(c(hue_pal()(22),'#000000'), c(levels(factor(sum_tab_topics$esi_abbr[! sum_tab_topics$esi_abbr == 'OVERALL'])), 'OVERALL')), 
+        values = setNames(c(hue_pal()(5),'#000000'), c(levels(factor(sum_tab_topics$domain[! sum_tab_topics$domain == 'OVERALL'])), 'OVERALL')), 
         ...
     )
 }
@@ -110,8 +120,8 @@ scale_fill_domains <- function(...){
 The validity of scientific claims often depends on the appropriate selection, implementation, reporting, and interpretation of statistical analyses. However, serious concerns have been raised about the frequent misinterpretation and misuse of statistical methods in several scientific disciplines (Altman, 1982; Gigerenzer, 2018; Nieuwenhuis et al., 2011; Sedlmeier & Gigerenzer, 1989; Strasak et al., 2007; Wasserstein & Lazar, 2016). Academic journals may attempt to counter these problems by providing guidance on statistical issues in their instructions to authors (Altman et al., 1983; Bailar & Mosteller, 1988; Smith, 2005).
 
 It is unclear whether journal-based statistical guidance, advocacy, or regulation is helpful or detrimental, especially in the context of controversial statistical topics (Mayo, 2021). There continues to be heated debate among statisticians and methodologists about fundamental statistical issues, as exemplified by the diverse commentaries in a 2019 special issue of The American Statistician (Wasserstein et al., 2019). P-values continue to be vigorously attacked (Wagenmakers, 2007) and staunchly defended (Mayo, 2018), and recent years have seen competing calls to either abandon (McShane et al., 2019), redefine (Benjamin et al., 2018), or justify (Lakens et al., 2018) statistical significance. Others have advocated for a so-called “New Statistics” centered on effect size estimation and confidence intervals (Cumming, 2014) or promoted wider adoption of Bayesian statistics (Goodman, 1999; Kruschke & Liddell, 2018). 
+In some cases, these debates have influenced journal policy and drastic changes in policy have sometimes backfired. For example, in 2005, in an attempt to avoid the “pitfalls of traditional statistical inference”, the journal Psychological Science endorsed a novel statistic prep (Killeen, 2005) which was subsequently adopted by the majority of publishing authors, and then abandoned under heavy criticism a few years later (Iverson et al., 2009). In 2015, the journal Basic and Applied Social Psychology introduced an outright ban on p-values and confidence intervals “because the state of the art remains uncertain” (Trafimow & Marks, 2015). An assessment of articles published in the first year after the ban argued that the absence of statistical safeguards led many authors to overstate their findings (Fricker et al., 2019).
 
-In some cases, these debates have influenced journal policy and drastic changes in policy have sometimes backfired. For example, in 2005, in an attempt to avoid the “pitfalls of traditional statistical inference”, the journal Psychological Science endorsed a novel statistic prep (Killeen, 2005) which was subsequently adopted by the majority of publishing authors, and then abandoned under heavy criticism a few years later (Iverson et al., 2009). In 2015, the journal Basic and Applied Social Psychology introduced an outright ban on p-values and confidence intervals “because the state of the art remains uncertain” (Trafimow & Marks, 2015). An assessment of articles published in the first year after the ban argued that the absence of statistical safeguards led many authors to overstate their findings (Fricker et al., 2019). 
 Although particularly controversial journal policies easily catch our attention, they may not be representative. Currently there is limited empirical data documenting the prevalence and content of statistical guidance for authors issued by scientific journals. Such data may help to inform debates about the appropriate role of journal policy in addressing statistical issues (Mayo, 2021) as well as identify gaps in journal-based statistical guidance within and across scientific disciplines. Some previous research has addressed this topic and suggested that there is probably large room for improvement. For example, Schriger et al. (2006) reported that 39% of 166 leading medical journals provided statistical guidance to authors. Topics addressed included p-values (20%), confidence intervals (14%), statistical power (10%), multiple testing (5%), modeling (4%), sensitivity analysis (4%), and Bayesian methods (1%). Recently, Malicki et al. (2019) used a text-mining approach to search for a limited set of terms related to Bayes factors, confidence intervals, effect sizes, and sample size calculations in instructions to authors provided by 835 journals across a range of scientific disciplines. The prevalence of any statistical guidance, defined by these terms, was 6% across all journals. Another empirical evaluation (Malicki et al., 2020) found that none of 57 preprint servers provided any statistical advice. These three studies provide some insight into the prevalence and content of statistical guidance offered to authors; however, Schriger et al. (2006) was limited to medical journals, Malicki et al. (2020) was limited to preprint servers, and Malicki et al. (2019) focused on only a few statistical topics. 
 
 In the present study, we assessed the nature and prevalence of statistical guidance offered to authors by 15 journals (top-ranked by Impact Factor) in each of 22 scientific disciplines (N = 330 journals). We manually inspected journal websites to identify any author-facing guidance related to statistics. We noted how often guidance pertained to twenty prespecified statistical issues and assessed whether journals endorsed or opposed statistical methods related to six topics that we considered in advance to be ‘hotly’ debated  (p-values, statistical significance, effect sizes, confidence intervals, sample size justification, and Bayesian statistics).
@@ -181,7 +191,7 @@ journalJIF <- d_journals %>%
 allFieldChar <- journalJIF %>% filter(`Scientific discipline` == 'Overall')
 ```
 
-Across all 22 scientific fields (n = 330 journals), the median 2017 Journal Impact Factor was `r allFieldChar %>% pull(Median_jif)` (IQR = `r allFieldChar %>% pull(IQR_jif)`; range `r allFieldChar %>% pull(Min_jif)` - `r allFieldChar %>% pull(Max_jif)`). Journal Impact Factors for each scientific discipline are available in Supplementary Table F1.
+Across all 22 scientific disciplines (n = 330 journals), the median 2017 Journal Impact Factor was `r allFieldChar %>% pull(Median_jif)` (IQR = `r allFieldChar %>% pull(IQR_jif)`; range `r allFieldChar %>% pull(Min_jif)` - `r allFieldChar %>% pull(Max_jif)`). Journal Impact Factors for each scientific discipline are available in Supplementary Table F1.
 
 ```{r shared_publisher_journals}
 # count number of journals that have shared publisher guidance
@@ -196,12 +206,13 @@ sum_tab <- d_all %>%
   # Recode NAs to FALSE
   mutate(across(
     starts_with('has_'), ~replace_na(., FALSE) )) %>% 
-  select(esi_field, starts_with("has_")) %>% 
-  group_by(esi_field) %>%
+  select(esi_field, domain, starts_with("has_")) %>% 
+  group_by(esi_field, domain) %>%
   summarise(across(starts_with("has_"), list(n = sum, N = ~n()), .names = "{col}__{fn}")) %>%
   adorn_totals(name = 'OVERALL') %>%
-  pivot_longer(cols = !esi_field, names_to = c('variable', '.value'), names_sep = '__', names_prefix = 'has_') %>%
+  pivot_longer(cols = !c(esi_field,domain), names_to = c('variable', '.value'), names_sep = '__', names_prefix = 'has_') %>%
   mutate(prop = n/N, percent = prop*100) %>%
+  mutate(domain = ifelse(esi_field == "OVERALL", "OVERALL", domain)) %>%
   mutate(esi_abbr = case_when( # create abbreviated field labels to use in figures
     esi_field == "OVERALL" ~ "OVERALL",
     esi_field == "AGRICULTURAL SCIENCES" ~ "AGRI",
@@ -211,20 +222,20 @@ sum_tab <- d_all %>%
     esi_field == "COMPUTER SCIENCE" ~ "COM",             
     esi_field == "ECONOMICS & BUSINESS" ~ "ECON",         
     esi_field == "ENGINEERING" ~ "ENG",                  
-    esi_field == "ENVIRONMENT_ECOLOGY" ~ "ECO",         
+    esi_field == "ENVIRONMENT & ECOLOGY" ~ "ECO",         
     esi_field == "GEOSCIENCES" ~ "GEO",                  
     esi_field == "IMMUNOLOGY" ~ "IMM",                   
     esi_field == "MATERIALS SCIENCE" ~ "MATSCI",            
     esi_field == "MATHEMATICS" ~ "MATH",                
     esi_field == "MICROBIOLOGY" ~ "MICBIO",                 
     esi_field == "MOLECULAR BIOLOGY & GENETICS" ~ "MOLBIO", 
-    esi_field == "Multidisciplinary" ~ "MULTI",            
+    esi_field == "MULTIDISCIPLINARY" ~ "MULTI",            
     esi_field == "NEUROSCIENCE & BEHAVIOR" ~ "NEURO",     
     esi_field == "PHARMACOLOGY & TOXICOLOGY" ~ "PHARM",    
     esi_field == "PHYSICS" ~ "PHYS",                     
     esi_field == "PLANT & ANIMAL SCIENCE" ~ "PLANT",       
-    esi_field == "PSYCHIATRY_PSYCHOLOGY" ~ "PSY",       
-    esi_field == "SOCIAL SCIENCES, GENERAL" ~ "SOC",     
+    esi_field == "PSYCHIATRY & PSYCHOLOGY" ~ "PSY",       
+    esi_field == "SOCIAL SCIENCES (GENERAL)" ~ "SOC",     
     esi_field == "SPACE SCIENCE" ~ "SPACE"          
   )) %>%
   mutate(esi_field_with_abbr = paste0(esi_field,' (', esi_abbr,')')) %>%
@@ -294,7 +305,25 @@ only_ext <- crosstab_int_ext %>% filter(has_internal_guidance == F, has_external
 
 ## Frequency of statistical guidance in general
 
-Out of `r sum_tab %>% filter(esi_field == "OVERALL", variable == "guidance") %>% pull(N)` journals we found that `r sum_tab %>% filter(esi_field == "OVERALL", variable == "guidance") %>% pull(n)` (`r sum_tab %>% filter(esi_field == "OVERALL", variable == "guidance") %>% pull(percent)`%) offered statistical guidance (Figure 1A; for equivalent tabular data, see Supplementary Information C). This includes `r only_ext` journals which only referred to statistical guidance in external sources (reporting guidelines or academic papers) and `r sum_tab %>% filter(esi_field == "OVERALL", variable == "internal_guidance") %>% pull(n)` journals that provided their own guidance (of which `r crosstab_int_ext %>% filter(has_external_guidance == T, has_internal_guidance == T) %>% pull(n)` also referred to external sources). `r sum_tab %>% filter(esi_field == "OVERALL", variable == "internal_guidance_section") %>% pull(n)` (`r sum_tab %>% filter(esi_field == "OVERALL", variable == "internal_guidance_section") %>% pull(percent)`%) of `r sum_tab %>% filter(esi_field == "OVERALL", variable == "internal_guidance_section") %>% pull(N)` journals had a dedicated statistical guidance section in their author instructions (Figure 1B). Journals offered statistical guidance more often in biomedical and health-related domains compared to other domains. Notably, all 15 Clinical Medicine journals offered some statistical guidance. In two domains (Computer Science and Mathematics), no journals offered any statistical guidance. Some journals shared the same publisher-level guidance, including `r publisher_nature_n` Nature journals, `r publisher_cell_n` Cell journals, and `r publisher_frontiers_n` Frontiers journals.
+```{r}
+# domain-level summary
+
+sum_tab_domain <- sum_tab %>% 
+  group_by(domain, variable) %>%
+  summarise(n = sum(n), N = sum(N)) %>%
+  mutate(prop = n/N, percent = n/N*100)
+
+any_guidance_healthlife <- sum_tab_domain %>% filter(domain == 'HEALTH & LIFE SCIENCES', variable == 'guidance')
+any_guidance_multi <- sum_tab_domain %>% filter(domain == 'MULTIDISCIPLINARY', variable == 'guidance')
+any_guidance_social <- sum_tab_domain %>% filter(domain == 'SOCIAL SCIENCES', variable == 'guidance')
+any_guidance_physical <- sum_tab_domain %>% filter(domain == 'PHYSICAL SCIENCES', variable == 'guidance')
+any_guidance_formal <- sum_tab_domain %>% filter(domain == 'FORMAL SCIENCES', variable == 'guidance')
+```
+
+The frequency of journal author instructions providing statistical guidance varied considerably across domains (Health and Life Sciences: `r any_guidance_healthlife %>% pull(n)` of `r any_guidance_healthlife %>% pull(N)` journals, `r any_guidance_healthlife %>% pull(percent) %>% round()`%; Multidisciplinary: `r any_guidance_multi %>% pull(n)` of `r any_guidance_multi %>% pull(N)` journals, `r any_guidance_multi %>% pull(percent) %>% round()`%; Social Sciences: `r any_guidance_social %>% pull(n)` of `r any_guidance_social %>% pull(N)` journals, `r any_guidance_social %>% pull(percent) %>% round()`%; Physical Sciences: `r any_guidance_physical %>% pull(n)` of `r any_guidance_physical %>% pull(N)` journals, `r any_guidance_physical %>% pull(percent) %>% round()`; Formal Sciences: `r any_guidance_formal %>% pull(n)` of `r any_guidance_formal %>% pull(N)` journals, `r any_guidance_formal %>% pull(percent) %>% round()`.
+
+
+Out of `r sum_tab %>% filter(esi_field == "OVERALL", variable == "guidance") %>% pull(N)` journals we found that `r sum_tab %>% filter(esi_field == "OVERALL", variable == "guidance") %>% pull(n)` (`r sum_tab %>% filter(esi_field == "OVERALL", variable == "guidance") %>% pull(percent)`%) offered statistical guidance (Figure 1A; for equivalent tabular data, see Supplementary Information C). This includes `r only_ext` journals which only referred to statistical guidance in external sources (reporting guidelines or academic papers) and `r sum_tab %>% filter(esi_field == "OVERALL", variable == "internal_guidance") %>% pull(n)` journals that provided their own guidance (of which `r crosstab_int_ext %>% filter(has_external_guidance == T, has_internal_guidance == T) %>% pull(n)` also referred to external sources). `r sum_tab %>% filter(esi_field == "OVERALL", variable == "internal_guidance_section") %>% pull(n)` (`r sum_tab %>% filter(esi_field == "OVERALL", variable == "internal_guidance_section") %>% pull(percent)`%) of `r sum_tab %>% filter(esi_field == "OVERALL", variable == "internal_guidance_section") %>% pull(N)` journals had a dedicated statistical guidance section in their author instructions (Figure 1B). Journals offered statistical guidance more often in Health and Life Sciences compared to other domains. Notably, all 15 Clinical Medicine journals offered some statistical guidance. In two domains (Computer Science and Mathematics), no journals offered any statistical guidance. Some journals shared the same publisher-level guidance, including `r publisher_nature_n` Nature journals, `r publisher_cell_n` Cell journals, and `r publisher_frontiers_n` Frontiers journals.
 
 ```{r}
 # build plot for any statistical guidance
@@ -309,7 +338,7 @@ plot_any <- sum_tab_general %>%
   geom_point(size = 5, shape = 23, colour = 'black', data = . %>% filter(esi_abbr == 'OVERALL')) + 
   ggtitle('Any statistical guidance') +
   ylab('journals (%)') +
-  scale_fill_domains() +
+  scale_fill_disciplines() +
   theme_apa() +
   theme(
     panel.grid.major.x = element_line(),
@@ -329,7 +358,7 @@ plot_dedicated <- sum_tab_general %>%
   geom_point(size = 5, shape = 23, colour = 'black', data = . %>% filter(esi_abbr == 'OVERALL')) + 
   ggtitle('Dedicated statistical guidance section') +
   ylab('journals (%)') +
-  scale_fill_domains() +
+  scale_fill_disciplines() +
   theme_apa() +
   theme(
     panel.grid.major.x = element_line(),
@@ -339,16 +368,16 @@ plot_dedicated <- sum_tab_general %>%
 
 # build combined plot for any statistical guidance and dedicated statistical guidance section
 
-domainOrder <- sum_tab_general %>%
+disciplineOrder <- sum_tab_general %>%
   filter(variable == 'guidance') %>%
   arrange(percent) %>% 
   pull(esi_abbr)
 
-domainOrder <- c(domainOrder[! domainOrder == 'OVERALL'], 'OVERALL')
+disciplineOrder <- c(disciplineOrder[! disciplineOrder == 'OVERALL'], 'OVERALL')
 
 plot_any_dedicated_joint <- sum_tab_general %>%
   filter(variable %in% c('guidance', 'internal_guidance_section')) %>%
-  mutate(esi_abbr = factor(esi_abbr, levels = domainOrder, ordered = T)) %>%
+  mutate(esi_abbr = factor(esi_abbr, levels = disciplineOrder, ordered = T)) %>%
   ggplot(aes(x=esi_abbr, y = percent, fill = esi_abbr)) +
   ylim(0,100) +
   geom_segment(aes(xend=esi_abbr, y=0, yend=percent), data =. %>% filter(variable == 'guidance')) +
@@ -358,13 +387,71 @@ plot_any_dedicated_joint <- sum_tab_general %>%
   geom_point(size = 2, shape = 23, colour = 'black', data = . %>% filter(variable == 'internal_guidance_section', esi_abbr == 'OVERALL')) + 
   ggtitle('General statistical guidance') +
   ylab('journals (%)') +
-  scale_fill_domains() +
+  scale_fill_disciplines() +
   theme_apa() +
   theme(
     panel.grid.major.x = element_line(),
     axis.title.y = element_blank(),
     legend.position = 'none') + 
   coord_flip()
+
+```  
+
+```{r}
+### REVISED PLOTS ###
+
+# first make a data frame with overall data for each domain
+
+domain_overalls <- sum_tab_general %>% 
+  filter(esi_field != "OVERALL") %>% # remove previous overall summary
+  group_by(domain, variable, var_display) %>%
+  summarise(n = sum(n), N = sum(N)) %>%
+  mutate(prop = n/N, percent = n/N*100, esi_abbr = paste(domain,'(ALL)'), esi_field = paste(domain,'(ALL)'), esi_field_with_abbr = paste(domain,'(ALL)'), priority = 2)
+
+forPlot <- sum_tab_general %>% 
+  filter(esi_field != "OVERALL") %>% # remove previous overall summary 
+  mutate(priority = 1) %>%
+  rbind(domain_overalls)
+
+# set ordering of disciplines and domains
+domainOrder <- domain_overalls %>%
+  filter(variable == 'guidance') %>%
+  arrange(desc(percent)) %>% 
+  pull(domain)
+
+axesOrder <- forPlot %>%
+  filter(variable == 'guidance', esi_field != "MULTIDISCIPLINARY") %>%
+  mutate(domain = factor(domain, levels = domainOrder, ordered = T)) %>%
+  arrange(domain, priority, percent) %>% 
+  pull(esi_field)
+
+ready <- forPlot %>% 
+  filter(esi_field != "MULTIDISCIPLINARY",
+    variable %in% c('guidance', 'internal_guidance_section')) %>%
+  mutate(esi_field = factor(esi_field, levels = axesOrder, ordered = T),
+         domain = factor(domain, levels = domainOrder, ordered = T)) 
+       
+
+plot_any_dedicated_joint <- ready %>%
+  ggplot(aes(y=esi_field, x = percent, fill = domain)) +
+  xlim(0,100) +
+  ggforce::facet_col(facets = vars(domain), 
+                     scales = "free_y", 
+                     space = "free") +
+  geom_segment(aes(yend=esi_field, x=0, xend=percent), data =. %>% filter(variable == 'guidance')) +
+  geom_point(size = 5, shape = 21, colour = 'black', data = . %>% filter(variable == 'guidance')) + 
+  geom_point(size = 2, shape = 23, colour = 'black', data = . %>% filter(variable == 'internal_guidance_section')) + 
+  geom_col(data = . %>% filter(variable == 'guidance', grepl('ALL', esi_field)), alpha = .2) + 
+  xlab('journals (%)') +
+  scale_fill_domains() +
+  theme_apa() +
+  theme(
+    panel.grid.major.x = element_line(),
+    axis.title.y = element_blank(),
+    legend.position = 'none',
+    #strip.text = element_text(hjust = 0),
+    strip.text.x = element_blank())
+
 
 ```  
 
@@ -381,19 +468,19 @@ n_topics <- d_all %>% filter(has_guidance == T, has_internal_guidance == T) %>%
 
 Of the `r d_all %>% filter(has_guidance == T, has_internal_guidance == T) %>% nrow()` journals that provided their own guidance, `r n_topics %>% filter(topics_mentioned > 0) %>% nrow()` mentioned at least one of the twenty prespecified statistical topics (Supplementary Figures D2 and D3) and `r n_topics %>% filter(topics_mentioned == 0) %>% nrow()` did not mention any of these topics (but did provide guidance on other miscellaneous statistical issues). The maximum number of topics mentioned by an individual journal was `r max(n_topics$topics_mentioned)`. The median topics mentioned was `r median(n_topics$topics_mentioned)` (IQR = `r IQR(n_topics$topics_mentioned)`; Supplementary Figure D1). 
 
-The frequency of guidance pertaining to each of twenty prespecified statistical topics is shown in detail per discipline in Supplementary Information C. Guidance was most common for confidence intervals (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "conf_int") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "conf_int") %>% pull(percent) %>% round(0)`%, Figure 2A), p-values (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "p_value") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "p_value") %>% pull(percent) %>% round(0)`%, Figure 2B), sample size justification (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "sample_size") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "sample_size") %>% pull(percent) %>% round(0)`%, Figure 2C), effect sizes (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "effect_size") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "effect_size") %>% pull(percent) %>% round(0)`%, Figure 2D), prespecification of analyses (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "prespecify") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "prespecify") %>% pull(percent) %>% round(0)`%, Figure 2E), and data exclusions (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "exclusion") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "exclusion") %>% pull(percent) %>% round(0)`%, Figure 2F). Guidance was less common for checking model assumptions (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "model_assume") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "model_assume") %>% pull(percent) %>% round(0)`%, Supplementary Figure C1, Panel A), multiple comparisons (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "multi_compare") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "multi_compare") %>% pull(percent) %>% round(0)`%, Supplementary Figure C1, Panel B), statistical significance (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "significance") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "significance") %>% pull(percent) %>% round(0)`%, Supplementary Figure C1, Panel C), one-tailed hypothesis tests (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "one_sided") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "one_sided") %>% pull(percent) %>% round(0)`%, Supplementary Figure C1, Panel D), Bayesian statistics (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "bayes") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "bayes") %>% pull(percent) %>% round(0)`%, Supplementary Figure C1, Panel E), null hypotheses (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "null_hypo") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "null_hypo") %>% pull(percent) %>% round(0)`%, Supplementary Figure C1, Panel F), subgroup analyses (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "subgroup") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "subgroup") %>% pull(percent) %>% round(0)`%, Supplementary Figure C2, Panel A), secondary outcomes (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "secondary") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "secondary") %>% pull(percent) %>% round(0)`%, Supplementary Figure C2, Panel B), missing data (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "missing") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "missing") %>% pull(percent) %>% round(0)`%, Supplementary Figure C2, Panel C), sensitivity analyses (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "sensitivity") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "sensitivity") %>% pull(percent) %>% round(0)`%, Supplementary Figure C2, Panel D), non-parametric tests (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "non_param") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "non_param") %>% pull(percent) %>% round(0)`%, Supplementary Figure C3, Panel A), baseline covariates (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "baseline_covar") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "baseline_covar") %>% pull(percent) %>% round(0)`%, Supplementary Figure C3, Panel B), outliers (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "outliers") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "outliers") %>% pull(percent) %>% round(0)`%, Supplementary Figure C3, Panel C), and categorisation of continuous outcomes (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "cat_continuous") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "cat_continuous") %>% pull(percent) %>% round(0)`%, Supplementary Figure C3, Panel D). Guidance on the twenty topics tended to be more common amongst journals in biomedical and health-related domains, especially Clinical Medicine, compared to other domains. Examples of verbatim guidance are provided in Supplementary Table D1.
+The frequency of guidance pertaining to each of twenty prespecified statistical topics is shown in detail per discipline in Supplementary Information C. Guidance was most common for confidence intervals (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "conf_int") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "conf_int") %>% pull(percent) %>% round(0)`%, Figure 2A), p-values (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "p_value") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "p_value") %>% pull(percent) %>% round(0)`%, Figure 2B), sample size justification (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "sample_size") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "sample_size") %>% pull(percent) %>% round(0)`%, Figure 2C), effect sizes (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "effect_size") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "effect_size") %>% pull(percent) %>% round(0)`%, Figure 2D), prespecification of analyses (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "prespecify") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "prespecify") %>% pull(percent) %>% round(0)`%, Figure 2E), and data exclusions (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "exclusion") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "exclusion") %>% pull(percent) %>% round(0)`%, Figure 2F). Guidance was less common for checking model assumptions (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "model_assume") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "model_assume") %>% pull(percent) %>% round(0)`%, Supplementary Figure C1, Panel A), multiple comparisons (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "multi_compare") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "multi_compare") %>% pull(percent) %>% round(0)`%, Supplementary Figure C1, Panel B), statistical significance (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "significance") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "significance") %>% pull(percent) %>% round(0)`%, Supplementary Figure C1, Panel C), one-tailed hypothesis tests (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "one_sided") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "one_sided") %>% pull(percent) %>% round(0)`%, Supplementary Figure C1, Panel D), Bayesian statistics (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "bayes") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "bayes") %>% pull(percent) %>% round(0)`%, Supplementary Figure C1, Panel E), null hypotheses (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "null_hypo") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "null_hypo") %>% pull(percent) %>% round(0)`%, Supplementary Figure C1, Panel F), subgroup analyses (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "subgroup") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "subgroup") %>% pull(percent) %>% round(0)`%, Supplementary Figure C2, Panel A), secondary outcomes (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "secondary") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "secondary") %>% pull(percent) %>% round(0)`%, Supplementary Figure C2, Panel B), missing data (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "missing") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "missing") %>% pull(percent) %>% round(0)`%, Supplementary Figure C2, Panel C), sensitivity analyses (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "sensitivity") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "sensitivity") %>% pull(percent) %>% round(0)`%, Supplementary Figure C2, Panel D), non-parametric tests (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "non_param") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "non_param") %>% pull(percent) %>% round(0)`%, Supplementary Figure C3, Panel A), baseline covariates (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "baseline_covar") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "baseline_covar") %>% pull(percent) %>% round(0)`%, Supplementary Figure C3, Panel B), outliers (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "outliers") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "outliers") %>% pull(percent) %>% round(0)`%, Supplementary Figure C3, Panel C), and categorisation of continuous outcomes (n = `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "cat_continuous") %>% pull(n)`, `r sum_tab_topics %>% filter(esi_field == "OVERALL", topic == "cat_continuous") %>% pull(percent) %>% round(0)`%, Supplementary Figure C3, Panel D). Guidance on the twenty topics tended to be more common amongst journals in Health and Life Sciences, especially Clinical Medicine, compared to other domains. Examples of verbatim guidance are provided in Supplementary Table D1.
 
 ```{r}
 plot_all_topics <- sum_tab_topics %>% 
   filter(esi_field == "OVERALL") %>% 
   arrange(percent) %>%
   mutate(topic_display = factor(topic_display, levels = topic_display, ordered = T)) %>%
-  ggplot(aes(x=topic_display, y = percent)) +
-    ylim(0,30) +
-    geom_segment(aes(xend=topic_display, y=0, yend=percent)) +
+  ggplot(aes(x=topic_display, y = n)) +
+    ylim(0,100) +
+    geom_segment(aes(xend=topic_display, y=0, yend=n)) +
     geom_point(size = 5, shape = 21, fill = 'black', colour = 'black') + 
-    ggtitle('Specific statistical guidance') +
-    ylab('journals (%)') +
+    ggtitle('B. Specific statistical guidance') +
+    ylab('journals (n)') +
     theme_apa() +
     theme(
       panel.grid.major.x = element_line(),
@@ -403,14 +490,21 @@ plot_all_topics <- sum_tab_topics %>%
     coord_flip()
 ```
 
-```{r generaltopicsfig, fig.path='figs/', dev=c('png', 'pdf'), fig.width = 8, fig.height = 6.5, fig.cap = "Percentage of journals offering some statistical guidance (Panel A circles), having a dedicated statistical guidance section (Panel A diamonds), or offering guidance on each of twenty prespecified statistical topics (Panel B).  Black circles represent data for all journals overall (N = 330 journals). Coloured circles and diamonds in Panel A represent individual scientific disciplines (n = 15 journals). Data is in descending order by percentage (after overall data in Panel A). CCV in Panel B refers to categorizing continuous outcomes. Discipline abbreviations: Agricultural Sciences (AGRI), Biology & Biochemistry (BIO), Chemistry (CHEM), Clinical Medicine (MED), Computer Science (COMSCI), Economics & Business (ECON), Engineering (ENGIN), Environment & Ecology (ECO), Geosciences (GEO), Immunology (IMMUN), Materials Science (MATSCI), Mathematics (MATH), Microbiology (MICBIO), Molecular Biology & Genetics (MOLBIO), Multidisciplinary (MULTI), Neuroscience & Behavior (NEURO), Pharmacology & Toxicology (PHARM), Physics (PHYS), Plant & Animal Science (PLANT), Psychiatry & Psychology (PSY), Social Sciences (SOCSCI), Space Science (SPACE)."}
-plot_any_dedicated_joint + plot_all_topics + plot_annotation(tag_levels = 'A') &
-  theme(plot.tag.position = c(0, 1),
+```{r generaltopicsfig, fig.path='figs/', dev=c('png', 'pdf'), fig.width = 8, fig.height = 9, fig.cap = "Percentage of journals offering some statistical guidance (Panel A circles), having a dedicated statistical guidance section (Panel A diamonds), or offering guidance on each of twenty prespecified statistical topics (Panel B).  Black circles represent data for all journals overall (N = 330 journals). Coloured circles and diamonds in Panel A represent individual scientific disciplines (n = 15 journals). Data is in descending order by percentage (after overall data in Panel A). CCV in Panel B refers to categorizing continuous outcomes. Discipline abbreviations: Agricultural Sciences (AGRI), Biology & Biochemistry (BIO), Chemistry (CHEM), Clinical Medicine (MED), Computer Science (COMSCI), Economics & Business (ECON), Engineering (ENGIN), Environment & Ecology (ECO), Geosciences (GEO), Immunology (IMMUN), Materials Science (MATSCI), Mathematics (MATH), Microbiology (MICBIO), Molecular Biology & Genetics (MOLBIO), Multidisciplinary (MULTI), Neuroscience & Behavior (NEURO), Pharmacology & Toxicology (PHARM), Physics (PHYS), Plant & Animal Science (PLANT), Psychiatry & Psychology (PSY), Social Sciences (SOCSCI), Space Science (SPACE)."}
+
+# plot_any_dedicated_joint + plot_all_topics + plot_annotation(tag_levels = 'A') & theme(plot.tag.position = c(0, 1),
+#        plot.tag = element_text(size = 14, hjust = 0, vjust = 0))
+
+plot_any_dedicated_joint + plot_all_topics & theme(plot.tag.position = c(0, 1),
         plot.tag = element_text(size = 14, hjust = 0, vjust = 0))
 
 # to save individual plots for twitter
 # ggsave(plot = plot_any_dedicated_joint, file = here('manuscript','figs','twitter','fig1A.png'), width = 6, height = 6.5, units = "in", dpi = 300)
 # ggsave(plot = plot_all_topics, file = here('manuscript','figs','twitter','fig1B.png'), width = 6, height = 6.5, units = "in", dpi = 300)
+```
+```{r generaltopicsfignew, fig.path='figs/', dev=c('png', 'pdf'), fig.width = 8, fig.height = 9, fig.cap = "Percentage of journals offering some statistical guidance (Panel A circles), having a dedicated statistical guidance section (Panel A diamonds), or offering guidance on each of twenty prespecified statistical topics (Panel B).  Black circles represent data for all journals overall (N = 330 journals). Coloured circles and diamonds in Panel A represent individual scientific disciplines (n = 15 journals). Data is in descending order by percentage (after overall data in Panel A). CCV in Panel B refers to categorizing continuous outcomes. Discipline abbreviations: Agricultural Sciences (AGRI), Biology & Biochemistry (BIO), Chemistry (CHEM), Clinical Medicine (MED), Computer Science (COMSCI), Economics & Business (ECON), Engineering (ENGIN), Environment & Ecology (ECO), Geosciences (GEO), Immunology (IMMUN), Materials Science (MATSCI), Mathematics (MATH), Microbiology (MICBIO), Molecular Biology & Genetics (MOLBIO), Multidisciplinary (MULTI), Neuroscience & Behavior (NEURO), Pharmacology & Toxicology (PHARM), Physics (PHYS), Plant & Animal Science (PLANT), Psychiatry & Psychology (PSY), Social Sciences (SOCSCI), Space Science (SPACE)."}
+plot_any_dedicated_joint & theme(plot.tag.position = c(0, 1),
+        plot.tag = element_text(size = 14, hjust = 0, vjust = 0))
 ```
 
 ```{r}
@@ -421,7 +515,7 @@ plotDomains <- function(thisTopic){
     arrange(percent) %>%
     mutate(esi_abbr = factor(esi_abbr, levels = c(esi_abbr[! esi_abbr == 'OVERALL'], 'OVERALL'), ordered = T))
   
-  ggplot(data = thisData, aes(x=esi_abbr, y = percent, fill = esi_abbr)) +
+  ggplot(data = thisData, aes(x=esi_abbr, y = percent, fill = domain)) +
     ylim(0,100) +
     geom_segment(aes(xend=esi_abbr, y=0, yend=percent)) +
     geom_point(size = 5, shape = 21, colour = 'black', data = thisData %>% filter(esi_abbr != 'OVERALL')) + 
@@ -456,6 +550,53 @@ wrap_plots(plot_list[1:6], ncol = 3) + plot_annotation(tag_levels = 'A') &
         plot.tag = element_text(size = 14, hjust = 0, vjust = 0))
 ```
 
+```{r}
+# REVISED PLOTS
+
+sum_tab_topics_domains <- sum_tab_topics %>% 
+  group_by(domain, topic_display) %>% 
+  summarise(n = sum(n), N = sum(N)) %>% 
+  mutate(prop = n/N, percent = n/N*100)
+
+# get order of topics in terms of most frequently mentioned
+topics_ordered <- sum_tab_topics_domains %>%
+  filter(domain == 'OVERALL') %>%
+  arrange(percent) %>%
+  pull(topic_display)
+  
+sum_tab_topics_domains <- sum_tab_topics_domains %>%
+  mutate(topic_display = factor(topic_display, levels = topics_ordered, ordered = T))
+
+
+customDomains <- c("HEALTH & LIFE SCIENCES"="HEALTH & LIFE SCIENCES", 
+                      "MULTIDISCIPLINARY"="MULTI- DISCIPLINARY", 
+                      "PHYSICAL SCIENCES"="PHYSICAL SCIENCES", 
+                      "SOCIAL SCIENCES"="SOCIAL SCIENCES")
+
+specific_fig_new <- sum_tab_topics_domains %>%
+  filter(domain %notin% c('FORMAL SCIENCES','OVERALL')) %>% 
+  ggplot(aes(y = topic_display, x = percent, fill = domain)) +
+  facet_wrap(.~domain, nrow = 1, labeller = as_labeller(customDomains, multi_line = T, default=label_wrap_gen(10))) +
+  #facet_wrap(.~domain, nrow = 1, labeller = label_wrap_gen(width = 2, multi_line = TRUE)) +
+  xlim(0,60) +
+  xlab('journals (%)') +
+  geom_segment(aes(yend=topic_display, x=0, xend=percent)) +
+  geom_point(size = 5, shape = 21, colour = 'black') +
+  scale_fill_domains() +
+  theme_apa() +
+  theme(
+    panel.grid.major.x = element_line(),
+    axis.title.y = element_blank(),
+    legend.position = 'none',
+    strip.background = 
+  )
+
+```
+
+```{r specifictopicsfignew, fig.path='figs/', dev=c('png', 'pdf'), fig.width = 8, fig.height = 7, fig.cap = "Caption here"}
+specific_fig_new
+```
+
 ## External statistical guidance
 
 ```{r}
@@ -472,6 +613,10 @@ reporting_guidelines <- lookup_external_guidance %>%
                                         `CONSORT abstract` = "CONSORT ABSTRACT EXTENSION",
          NIH = "NIH PRINCIPLES AND GUIDELINES FOR REPORTING PRECLINICAL RESEARCH",
          NLM = "NLM RESEARCH REPORTING GUIDELINES AND INITIATIVES (HTTPS://WWW.NLM.NIH.GOV/SERVICES/RESEARCH_REPORT_GUIDE.HTML)"))
+```
+
+```{r}
+sum_tab_domain %>% filter(variable == 'external_guidance') %>% arrange(desc(percent))
 ```
 
 `r d_all %>% filter(has_external_guidance == T) %>% nrow()` journals referred authors to statistical guidance in an external source (Supplementary Table E1). Of these, `r crosstab_int_ext %>% filter(has_external_guidance == T, has_internal_guidance == F) %>% pull(n)` only referred to statistical guidance in external sources, whereas the other `r crosstab_int_ext %>% filter(has_external_guidance == T, has_internal_guidance == T) %>% pull(n)` also provided their own additional guidance. `r lookup_external_guidance %>% nrow()` different external sources were referred to, of which `r lookup_external_guidance %>% filter(guidance_type == 'reporting guideline') %>% nrow()` were reporting guidelines and `r lookup_external_guidance %>% filter(guidance_type != 'reporting guideline') %>% nrow()` were other types of guidance, such as academic papers, textbooks, or organizational guidelines. The most commonly referred to reporting guidelines were CONSORT (n = `r reporting_guidelines %>% filter(external_guidance == "CONSORT") %>% pull(n_journals)` journals), ARRIVE (n = `r reporting_guidelines %>% filter(external_guidance == "ARRIVE") %>% pull(n_journals)` journals), PRISMA (n = `r reporting_guidelines %>% filter(external_guidance == "PRISMA") %>% pull(n_journals)` journals), REMARK (n = `r reporting_guidelines %>% filter(external_guidance == "REMARK") %>% pull(n_journals)` journals), and STARD (n = `r reporting_guidelines %>% filter(external_guidance == "STARD") %>% pull(n_journals)` journals), with all other reporting guidelines being referred to by `r reporting_guidelines %>% filter(external_guidance == "ICMJE") %>% pull(n_journals)` or fewer journals. All other types of external guidance were referred to by `r lookup_external_guidance %>% filter(guidance_type != "reporting guideline") %>% pull(n_journals) %>% max()` or fewer journals.
@@ -512,7 +657,7 @@ Table 1 shows how many journals offered different levels of endorsement for six 
 `r d_endorse %>% filter(!is.na(sample_size)) %>% nrow()` journals provided guidance on sample size justification, of which the vast majority (n = `r d_endorse %>% filter(sample_size_use == "Explicit endorsement") %>% nrow()`) offered explicit endorsement. `r d_endorse %>% filter(!is.na(effect_size)) %>% nrow()` journals offered guidance on effect sizes, of which the vast majority (n = `r d_endorse %>% filter(effect_size_use == "Explicit endorsement") %>% nrow()`) offered explicit endorsement. All `r d_endorse %>% filter(!is.na(bayes)) %>% nrow()` journals that provided guidance about Bayesian statistics provided implicit endorsement.
 
 # Discussion
-Our investigation found that 48% of 330 top-ranked journals across 22 scientific disciplines provided some statistical guidance to authors, with 28% of journals having a dedicated statistical guidance section in their instructions to authors. It was far more common for journals to provide statistical guidance in biomedical and health-related disciplines relative to non-health related disciplines like the social sciences and physical sciences. Statistical guidance addressed a range of topics, and was most common for hotly debated topics: p-values, confidence intervals, sample size justification, and effect sizes. However, very few journals appeared to take particularly controversial positions, such as banning p-values or the use of statistical significance.
+Our investigation found that 48% of 330 top-ranked journals across 22 scientific disciplines provided some statistical guidance to authors, with 28% of journals having a dedicated statistical guidance section in their instructions to authors. It was far more common for journals to provide statistical guidance in Health and Life Sciences relative to non-health related disciplines like the social sciences and physical sciences. Statistical guidance addressed a range of topics, and was most common for hotly debated topics: p-values, confidence intervals, sample size justification, and effect sizes. However, very few journals appeared to take particularly controversial positions, such as banning p-values or the use of statistical significance.
 
 Our finding that 48% of journals provide statistical guidance is substantially higher than observed in previous research. Malicki et al. (2019) found that statistical guidance was provided by only 6% of 835 journals across a similarly broad range of scientific disciplines; however, this estimate was based on a text-mining approach sensitive to only a narrow range of statistical topics (specifically, Bayes factors, confidence intervals, effect sizes, and power / sample size calculations). Additionally, our sample only included journals with high Impact Factors whereas Malicki et al. examined a representative (randomly selected) sample of journals across a range of citation impact. It is possible that journals with lower citation impact are less likely to provide statistical guidance (as is the case for authorship and conflict of interest guidance according to a recent systematic review, Malicki et al. 2021). Our methodology is more comparable to the study by Schriger et al. (2006) who reported that 39% of 166 major medical journals provided statistical guidance. By contrast, all of the medical journals we assessed provided statistical guidance; however, we only assessed the 15 journals with the highest Impact Factor. It is possible that there has been an increase in the provision of statistical guidance over time (as has been shown for guidance related to authorship, conflicts of interest, and data sharing, Malicki et al. 2021), but empirical comparisons are not possible because journal-level information is not provided in Schriger et al. Our study contributes to this literature by establishing a benchmark against which future studies of journal-based statistical guidance can be compared.
 

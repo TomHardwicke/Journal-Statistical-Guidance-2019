@@ -172,7 +172,7 @@ plt_two <- plt_data %>% filter(journal %in% levels(plt_data$journal)[1:43]) %>% 
 
 ```{r}
 # REVISED GRID PLOTS 
-my_palette <- c("#404788FF", "#95D840FF")
+my_palette <- c("#95D840FF", "#404788FF")
 
 disciplineOrder <- sum_tab_general %>%
   filter(variable == 'guidance') %>%
@@ -244,7 +244,7 @@ gridPlotter <- function(thisDiscipline){
     filter(esi_field == thisDiscipline)
   
   journalOrder <- thisData %>% 
-    mutate(outcome = factor(outcome, levels = c('Not mentioned', 'Mentioned')),
+    mutate(outcome = factor(outcome),
            journal = as.character(journal),
            journal = factor(journal)) %>%
     count(journal,outcome, .drop = F) %>%
@@ -252,15 +252,10 @@ gridPlotter <- function(thisDiscipline){
     arrange(n) %>%
     pull(journal)
   
-  if(is_empty(journalOrder)){ # fields where no journals mention any topics will return an empty journal order
-    journalOrder <- levels(journalOrder) # just use the factor levels in this case
-  }
-  
   thisData %>%
-    mutate(outcome = factor(outcome, levels = c('Not mentioned', 'Mentioned')),
-           journal = factor(journal, levels = journalOrder)) %>%
+    mutate(journal = factor(journal, levels = journalOrder)) %>%
     ggplot(aes(x = topic_display, y = journal)) +
-      facet_col(facets = vars(esi_field), scales = 'free_y', space = 'free') +
+      ggforce::facet_col(facets = vars(esi_field), scales = 'free_y', space = 'free') +
       geom_tile(aes(fill = outcome), colour = 'black', size = .25, alpha = .6) +
       scale_fill_manual(
         values = my_palette,
@@ -286,89 +281,19 @@ gridPlotter <- function(thisDiscipline){
 gridPlotter('CLINICAL MEDICINE')
 ```
 
-```{r gridImm, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Immunology.", fig.height = 5, fig.width = 8}
+```{r gridMed, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Immunology", fig.height = 5, fig.width = 8}
 gridPlotter('IMMUNOLOGY')
 ```
 
-```{r gridPsy, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Psychology and Psychiatry.", fig.height = 5, fig.width = 8}
+```{r gridMed, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Immunology", fig.height = 5, fig.width = 8}
 gridPlotter('PSYCHIATRY & PSYCHOLOGY')
 ```
 
-```{r gridBiochem, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Biology and Biochemistry.", fig.height = 5, fig.width = 8}
-gridPlotter('BIOLOGY & BIOCHEMISTRY')
-```
 
-```{r gridMolBio, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Molecular Biology and Genetics.", fig.height = 5, fig.width = 8}
-gridPlotter('MOLECULAR BIOLOGY & GENETICS')
-```
 
-```{r gridPlant, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Plant and Animal Science.", fig.height = 5, fig.width = 8}
-gridPlotter('PLANT & ANIMAL SCIENCE')
-```
 
-```{r gridPharm, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Pharmacology and Toxicology.", fig.height = 5, fig.width = 8}
-gridPlotter('PHARMACOLOGY & TOXICOLOGY')
-```
 
-```{r gridNeuro, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Neuroscience and Behavior.", fig.height = 5, fig.width = 8}
-gridPlotter('NEUROSCIENCE & BEHAVIOR')
-```
 
-```{r gridMicro, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Microbiology.", fig.height = 5, fig.width = 8}
-gridPlotter('MICROBIOLOGY')
-```
-
-```{r gridEco, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Environment and Ecology.", fig.height = 5, fig.width = 8}
-gridPlotter('ENVIRONMENT & ECOLOGY')
-```
-
-```{r gridAgri, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Agricultural Sciences.", fig.height = 5, fig.width = 8}
-gridPlotter('AGRICULTURAL SCIENCES')
-```
-
-```{r gridMulti, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for Multidisciplinary journals.", fig.height = 5, fig.width = 8}
-gridPlotter('MULTIDISCIPLINARY')
-```
-
-```{r gridSocial, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Social Sciences (General).", fig.height = 5, fig.width = 8}
-gridPlotter('SOCIAL SCIENCES (GENERAL)')
-```
-
-```{r gridEcon, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Economics and Business.", fig.height = 5, fig.width = 8}
-gridPlotter('ECONOMICS & BUSINESS')
-```
-
-```{r gridMat, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Materials Science.", fig.height = 5, fig.width = 8}
-gridPlotter('MATERIALS SCIENCE')
-```
-
-```{r gridPhys, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Physics.", fig.height = 5, fig.width = 8}
-gridPlotter('PHYSICS')
-```
-
-```{r gridChem, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Chemistry.", fig.height = 5, fig.width = 8}
-gridPlotter('CHEMISTRY')
-```
-
-```{r gridSpace, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Space Science.", fig.height = 5, fig.width = 8}
-gridPlotter('SPACE SCIENCE')
-```
-
-```{r gridGeo, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Geosciences.", fig.height = 5, fig.width = 8}
-gridPlotter('GEOSCIENCES')
-```
-
-```{r gridEngin, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Engineering.", fig.height = 5, fig.width = 8}
-gridPlotter('ENGINEERING')
-```
-
-```{r gridMath, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Mathematics.", fig.height = 5, fig.width = 8}
-gridPlotter('MATHEMATICS')
-```
-
-```{r gridComSci, fig.path='figs/', fig.cap = "Continuation of Supplementary Figure D2 for the discipline of Computer Science.", fig.height = 5, fig.width = 8}
-gridPlotter('COMPUTER SCIENCE')
-```
 
 # Supplementary Information E. External sources of statistical guidance.
 
@@ -391,88 +316,4 @@ lookup_external_guidance %>%
 ```{r}
 journalJIF  %>%
   kable(caption = "Journal Impact Factors stratified by each of 22 scientific disciplines")
-```
-
-# Supplementary Information I. Sensitivity analysis: Statistical topics without shared publisher-guidance
-
-```{r summarise_data_noshared}
-# sensitivity analysis of statistical topics addressed if journals with shared guidance are removed
-sum_tab_topics_exclude_shared <- d_all %>%
-  filter(has_publisher_guidance == F, journal != "Scientific Data") %>% # select journals with shared publisher-level guidance excluding 'Scientific Data' which also had its own statistical guidance.
-  # Recode NAs to FALSE
-  mutate(across(
-    starts_with('has_'), ~replace_na(., FALSE) )) %>% 
-  select(esi_field, domain, starts_with("has_")) %>% 
-  group_by(esi_field, domain) %>%
-  summarise(across(starts_with("has_"), list(n = sum, N = ~n()), .names = "{col}__{fn}")) %>%
-  adorn_totals(name = 'OVERALL') %>%
-  pivot_longer(cols = !c(esi_field,domain), names_to = c('variable', '.value'), names_sep = '__', names_prefix = 'has_') %>%
-  mutate(prop = n/N, percent = prop*100) %>%
-  mutate(domain = ifelse(esi_field == "OVERALL", "OVERALL", domain)) %>%
-  mutate(esi_abbr = case_when( # create abbreviated field labels to use in figures
-    esi_field == "OVERALL" ~ "OVERALL",
-    esi_field == "AGRICULTURAL SCIENCES" ~ "AGRI",
-    esi_field == "BIOLOGY & BIOCHEMISTRY" ~ "BIO",       
-    esi_field == "CHEMISTRY" ~ "CHEM" ,                   
-    esi_field == "CLINICAL MEDICINE" ~ "MED",           
-    esi_field == "COMPUTER SCIENCE" ~ "COM",             
-    esi_field == "ECONOMICS & BUSINESS" ~ "ECON",         
-    esi_field == "ENGINEERING" ~ "ENG",                  
-    esi_field == "ENVIRONMENT & ECOLOGY" ~ "ECO",         
-    esi_field == "GEOSCIENCES" ~ "GEO",                  
-    esi_field == "IMMUNOLOGY" ~ "IMM",                   
-    esi_field == "MATERIALS SCIENCE" ~ "MATSCI",            
-    esi_field == "MATHEMATICS" ~ "MATH",                
-    esi_field == "MICROBIOLOGY" ~ "MICBIO",                 
-    esi_field == "MOLECULAR BIOLOGY & GENETICS" ~ "MOLBIO", 
-    esi_field == "MULTIDISCIPLINARY" ~ "MULTI",            
-    esi_field == "NEUROSCIENCE & BEHAVIOR" ~ "NEURO",     
-    esi_field == "PHARMACOLOGY & TOXICOLOGY" ~ "PHARM",    
-    esi_field == "PHYSICS" ~ "PHYS",                     
-    esi_field == "PLANT & ANIMAL SCIENCE" ~ "PLANT",       
-    esi_field == "PSYCHIATRY & PSYCHOLOGY" ~ "PSY",       
-    esi_field == "SOCIAL SCIENCES (GENERAL)" ~ "SOC",     
-    esi_field == "SPACE SCIENCE" ~ "SPACE"          
-  )) %>%
-  mutate(esi_field_with_abbr = paste0(esi_field,' (', esi_abbr,')')) %>%
-  mutate(var_display = case_when( # create display versions of topic names
-    variable == "guidance" ~ "Provides any statistical guidance",
-    variable == "internal_guidance" ~ "Provides journal-specific statistical guidance",
-    variable == "internal_guidance_section" ~ "Dedicated statistical guidance section",
-    variable == "external_guidance" ~ "External statistical guidance",
-    variable == "p_value" ~ "p values",
-    variable == "significance" ~ "statistical significance",
-    variable == "null_hypo" ~ "null hypotheses",
-    variable == "sample_size" ~ "sample size",
-    variable == "conf_int" ~ "confidence intervals",
-    variable == "effect_size" ~ "effect sizes",
-    variable == "multi_compare" ~ "multiple comparisons",
-    variable == "subgroup" ~ "subgroup analyses",
-    variable == "baseline_covar" ~ "baseline covariates",
-    variable == "non_param" ~ "non-parametric tests",
-    variable == "sensitivity" ~ "sensitivity analyses",
-    variable == "model_assume" ~ "model assumptions",
-    variable == "exclusion" ~ "data exclusions",
-    variable == "outliers" ~ "outliers",
-    variable == "missing" ~ "missing data",
-    variable == "one_sided" ~ "one-tailed tests",
-    variable == "bayes" ~ "Bayesian statistics",
-    variable == "secondary" ~ "secondary outcomes",
-    variable == "prespecify" ~ "prespecify analyses",
-    variable == "cat_continuous" ~ "CCV",
-    variable ==  "publisher_guidance" ~ "Shares publisher guidance"
-  )) %>%
-  filter(variable %notin% c('guidance', 'internal_guidance', 'internal_guidance_section', 'external_guidance', 'publisher_guidance')) %>% # select only data on topics
-  rename(topic = variable, topic_display = var_display)
-
-# are the most common topics most common becayse they were included in shared publisher level guidance?
-sum_tab_topics_exclude_shared_domain <- sum_tab_topics_exclude_shared %>%
-  group_by(domain, topic_display) %>%
-  summarise(n = sum(n), N = sum(N)) %>%
-  mutate(prop = n/N, percent = n/N*100) %>%
-  arrange(desc(percent), .by_group = T) %>%
-  filter(domain == "OVERALL") %>%
-  ungroup() %>%
-  select(topic_display, n) %>%
-  kable()
 ```

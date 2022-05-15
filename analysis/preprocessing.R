@@ -431,21 +431,29 @@ d_coding <- d_coding %>% select(-external_guidance_clean)
 # bind d_coding and d_journals
 d_all <- inner_join(d_coding,d_journals, by = 'journal')
 
+# rename some disciplines for display purposes
+d_all <- d_all %>%
+  mutate(esi_field = case_when(
+    esi_field == "ENVIRONMENT_ECOLOGY" ~ "ENVIRONMENT & ECOLOGY",        
+    esi_field == "Multidisciplinary" ~ "MULTIDISCIPLINARY",          
+    esi_field == "PSYCHIATRY_PSYCHOLOGY" ~ "PSYCHIATRY & PSYCHOLOGY",      
+    esi_field == "SOCIAL SCIENCES, GENERAL" ~ "SOCIAL SCIENCES (GENERAL)",
+    TRUE ~ esi_field
+  ))
+  
 # add higher-level domain classifications
 d_all <- d_all %>%
   mutate(domain = case_when(
-    esi_field %in% c('AGRICULTURAL SCIENCES','BIOLOGY & BIOCHEMISTRY','ENVIRONMENT_ECOLOGY','MICROBIOLOGY','MOLECULAR BIOLOGY & GENETICS','NEUROSCIENCE & BEHAVIOR','PLANT & ANIMAL SCIENCE') 
-    ~'Life sciences',
-    esi_field %in% c('CLINICAL MEDICINE','IMMUNOLOGY','PHARMACOLOGY & TOXICOLOGY') 
-    ~'Health sciences',
+    esi_field %in% c('AGRICULTURAL SCIENCES','PSYCHIATRY & PSYCHOLOGY','BIOLOGY & BIOCHEMISTRY','ENVIRONMENT & ECOLOGY','MICROBIOLOGY','MOLECULAR BIOLOGY & GENETICS','NEUROSCIENCE & BEHAVIOR','PLANT & ANIMAL SCIENCE', 'CLINICAL MEDICINE','IMMUNOLOGY','PHARMACOLOGY & TOXICOLOGY') 
+    ~'HEALTH & LIFE SCIENCES',
     esi_field %in% c('CHEMISTRY','ENGINEERING','GEOSCIENCES','MATERIALS SCIENCE','SPACE SCIENCE','PHYSICS') 
-    ~'Physical sciences',
-    esi_field %in% c('ECONOMICS & BUSINESS','PSYCHIATRY_PSYCHOLOGY','SOCIAL SCIENCES, GENERAL') 
-    ~'Social sciences',
+    ~'PHYSICAL SCIENCES',
+    esi_field %in% c('ECONOMICS & BUSINESS','SOCIAL SCIENCES (GENERAL)') 
+    ~'SOCIAL SCIENCES',
     esi_field %in% c('COMPUTER SCIENCE','MATHEMATICS') 
-    ~'Formal sciences',
-    esi_field %in% c('Multidisciplinary')
-    ~'Multidisciplinary'
+    ~'FORMAL SCIENCES',
+    esi_field %in% c('MULTIDISCIPLINARY')
+    ~'MULTIDISCIPLINARY'
   ))
 
 write_csv(d_all, file =  here("data", "processed", "d_all.csv"))
